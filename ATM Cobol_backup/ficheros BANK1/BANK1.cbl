@@ -96,26 +96,26 @@
 
            DISPLAY BLANK-SCREEN.
 
-           DISPLAY (2 26) "Cajero Automatico UnizarBank"
+           DISPLAY  "Cajero Automatico UnizarBank" LINE 2 COL 26
                WITH FOREGROUND-COLOR IS BLUE.
 
            MOVE FUNCTION CURRENT-DATE TO CAMPOS-FECHA.
 
-           DISPLAY (4 32) DIA.
-           DISPLAY (4 34) "-".
-           DISPLAY (4 35) MES.
-           DISPLAY (4 37) "-".
-           DISPLAY (4 38) ANO.
-           DISPLAY (4 44) HORAS.
-           DISPLAY (4 46) ":".
-           DISPLAY (4 47) MINUTOS.
+           DISPLAY DIA LINE 4 COL 32. 
+           DISPLAY "-" LINE 4 COL 34.
+           DISPLAY MES LINE 4 COL 35.
+           DISPLAY "-" LINE 4 COL 37.
+           DISPLAY ANO LINE 4 COL 38.
+           DISPLAY HORAS LINE 4 COL 44.
+           DISPLAY ":" LINE 4 COL 46.
+           DISPLAY MINUTOS LINE 4 COL 47.
 
 
        P1.
-           DISPLAY (8 28) "Bienvenido a UnizarBank".
-           DISPLAY (10 18) "Por favor, introduzca la tarjeta para operar".
+           DISPLAY "Bienvenido a UnizarBank" LINE 8 COL 28.
+           DISPLAY "Por favor, introduzca la tarjeta para operar" LINE 10 COL 18.
 
-           DISPLAY (24 33) "Enter - Aceptar".
+           DISPLAY "Enter - Aceptar" LINE 24 COL 33.
 
        P1-ENTER.
            ACCEPT (24 80) CHOICE ON EXCEPTION
