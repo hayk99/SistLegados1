@@ -108,10 +108,7 @@
 
        PCONSULTA-SALDO.
            OPEN INPUT F-MOVIMIENTOS.
-<<<<<<< HEAD
-=======
       *>     IF FSM <> 30
->>>>>>> 1a7efce9e90eec02073017e547d236a605e63510
            IF FSM <> 00
                GO TO PSYS-ERR.
 
@@ -138,10 +135,7 @@
 
            MOVE LAST-MOV-NUM TO MOV-NUM.
            OPEN INPUT F-MOVIMIENTOS.
-<<<<<<< HEAD
-=======
       *>     IF FSM <> 30
->>>>>>> 1a7efce9e90eec02073017e547d236a605e63510
            IF FSM <> 00
                GO TO PSYS-ERR.
 

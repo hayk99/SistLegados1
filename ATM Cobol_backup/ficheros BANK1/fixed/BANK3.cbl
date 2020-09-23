@@ -259,7 +259,9 @@
            DISPLAY "de fechas o cantidades" LINE 9 COL 47.
 
            DISPLAY "Entre las fechas / / y / / " LINE 13 COL 20.
-           DISPLAY "Cantidad entre EUR y EUR" LINE 15 COL 15.
+           DISPLAY "Cantidad entre         .   EUR y         .   EUR" 
+              LINE 15 COL 15
+      *>     DISPLAY "Cantidad entre EUR y EUR" LINE 15 COL 15.
 
            DISPLAY "Enter - Aceptar" LINE 24 COL 1.
            DISPLAY "ESC - Cancelar" LINE 24 COL 65.
