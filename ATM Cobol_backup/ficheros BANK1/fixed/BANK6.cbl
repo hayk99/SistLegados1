@@ -156,7 +156,8 @@
 
        MOVIMIENTOS-OPEN.
            OPEN I-O F-MOVIMIENTOS.
-           IF FSM <> 30 THEN
+      *>     IF FSM <> 30 THEN
+           IF FSM <> 00 THEN
                GO TO PSYS-ERR
            END-IF.
 
