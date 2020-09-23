@@ -20,7 +20,7 @@
        FD F-MOVIMIENTOS
            LABEL RECORD STANDARD
            VALUE OF FILE-ID IS "movimientos.ubd".
-       01 MOVIMIENTO-REG.
+        01 MOVIMIENTO-REG.
            02 MOV-NUM               PIC  9(35).
            02 MOV-TARJETA           PIC  9(16).
            02 MOV-ANO               PIC   9(4).
@@ -140,6 +140,10 @@
 
        CONSULTA-ULTIMO-MOVIMIENTO SECTION.
            OPEN I-O F-MOVIMIENTOS.
+<<<<<<< HEAD
+=======
+      *>     IF FSM <> 30
+>>>>>>> 1a7efce9e90eec02073017e547d236a605e63510
            IF FSM <> 00
               GO TO PSYS-ERR.
 
@@ -161,6 +165,10 @@
 
        CONSULTA-SALDO-USUARIO SECTION.
            OPEN INPUT F-MOVIMIENTOS.
+<<<<<<< HEAD
+=======
+      *>     IF FSM <> 30
+>>>>>>> 1a7efce9e90eec02073017e547d236a605e63510
            IF FSM <> 00
                GO TO PSYS-ERR.
 
@@ -190,6 +198,10 @@
            MOVE LAST-USER-MOV-NUM TO MOV-NUM.
 
            OPEN INPUT F-MOVIMIENTOS.
+<<<<<<< HEAD
+=======
+      *>     IF FSM <> 30
+>>>>>>> 1a7efce9e90eec02073017e547d236a605e63510
            IF FSM <> 00
                GO TO PSYS-ERR.
 
@@ -243,6 +255,10 @@
        INSERTAR-MOVIMIENTO SECTION.
 
            OPEN I-O F-MOVIMIENTOS.
+<<<<<<< HEAD
+=======
+      *>     IF FSM <> 30
+>>>>>>> 1a7efce9e90eec02073017e547d236a605e63510
            IF FSM <> 00
               GO TO PSYS-ERR.
 

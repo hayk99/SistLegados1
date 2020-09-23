@@ -156,6 +156,10 @@
 
        MOVIMIENTOS-OPEN.
            OPEN I-O F-MOVIMIENTOS.
+<<<<<<< HEAD
+=======
+      *>     IF FSM <> 30 THEN
+>>>>>>> 1a7efce9e90eec02073017e547d236a605e63510
            IF FSM <> 00 THEN
                GO TO PSYS-ERR
            END-IF.
@@ -266,6 +270,10 @@
 
        VERIFICACION-CTA-CORRECTA.
            OPEN I-O TARJETAS.
+<<<<<<< HEAD
+=======
+      *>     IF FST <> 30
+>>>>>>> 1a7efce9e90eec02073017e547d236a605e63510
            IF FST <> 00
               GO TO PSYS-ERR.
 

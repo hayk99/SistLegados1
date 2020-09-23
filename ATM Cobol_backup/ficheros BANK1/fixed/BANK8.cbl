@@ -261,6 +261,10 @@
 
        CONSULTA-SALDO.
            OPEN I-O F-MOVIMIENTOS.
+<<<<<<< HEAD
+=======
+      *>     IF FSM <> 30
+>>>>>>> 1a7efce9e90eec02073017e547d236a605e63510
            IF FSM <> 00
                GO TO PSYS-ERR.
 
@@ -310,6 +314,10 @@
            MOVE 9 TO LINEA-ESP-ACTUAL.
 
            OPEN I-O F-ESPECTACULOS.
+<<<<<<< HEAD
+=======
+      *>     IF FSE <> 30
+>>>>>>> 1a7efce9e90eec02073017e547d236a605e63510
            IF FSE <> 00
                GO TO PSYS-ERR.
 

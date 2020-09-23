@@ -113,7 +113,8 @@
 
        P1.
            DISPLAY "Bienvenido a UnizarBank" LINE 8 COL 28.
-           DISPLAY "Por favor, introduzca la tarjeta para operar" LINE 10 COL 18.
+           DISPLAY "Por favor, introduzca la tarjeta para operar" 
+              LINE 10 COL 18.
 
            DISPLAY "Enter - Aceptar" LINE 24 COL 33.
 
