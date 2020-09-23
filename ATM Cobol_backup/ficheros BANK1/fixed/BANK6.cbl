@@ -267,7 +267,8 @@
 
        VERIFICACION-CTA-CORRECTA.
            OPEN I-O TARJETAS.
-           IF FST <> 30
+      *>     IF FST <> 30
+           IF FST <> 00
               GO TO PSYS-ERR.
 
            MOVE CUENTA-DESTINO TO TNUM-E.
