@@ -1,4 +1,5 @@
 #!/bin/bash
+#Autor: Hayk Kocharyan
 
 
 for file in ./*;

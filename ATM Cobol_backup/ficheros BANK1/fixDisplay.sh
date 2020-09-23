@@ -1,4 +1,5 @@
 #!/bin/bash
+#Autor: Hayk Kocharyan
 
 filename=fixed/$2.cbl
 echo $filename
