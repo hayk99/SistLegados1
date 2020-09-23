@@ -73,7 +73,7 @@
 
        77 PRESSED-KEY              PIC  9(4).
        77 PIN-INTRODUCIDO          PIC  9(4).
-       77 CHOICE                   PIC  9(1).
+       77 CHOICE                   PIC  9(1) BLANK WHEN ZERO.
 
 
        SCREEN SECTION.
@@ -97,7 +97,7 @@
            DISPLAY BLANK-SCREEN.
 
            DISPLAY  "Cajero Automatico UnizarBank" LINE 2 COL 26
-               WITH FOREGROUND-COLOR IS BLUE.
+               WITH FOREGROUND-COLOR IS CYAN.
 
            MOVE FUNCTION CURRENT-DATE TO CAMPOS-FECHA.
 
@@ -116,7 +116,8 @@
            DISPLAY "Por favor, introduzca la tarjeta para operar" 
               LINE 10 COL 18.
 
-           DISPLAY "Enter - Aceptar" LINE 24 COL 33.
+           DISPLAY "Enter - Aceptar" LINE 24 COL 33
+               WITH FOREGROUND-COLOR IS YELLOW.
 
        P1-ENTER.
            ACCEPT CHOICE LINE 24 COL 80 ON EXCEPTION
