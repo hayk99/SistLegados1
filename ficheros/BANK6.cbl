@@ -231,6 +231,21 @@
                GO TO INDICAR-CTA-DST
            END-IF.
 
+           IF (DIA1-USUARIO = 0) OR (MES1-USUARIO = 0) 
+                OR (ANO1-USUARIO = 0)
+                       MOVE ANO            TO ANO1-USUARIO
+                       MOVE MES            TO MES1-USUARIO
+                       MOVE DIA            TO DIA1-USUARIO.
+                        
+           IF (ANO*10000+MES*100+DIA) >= 
+                (ANO1-USUARIO*10000+MES1-USUARIO*100+DIA1-USUARIO)
+                       MOVE ANO            TO ANO1-USUARIO
+                       MOVE MES            TO MES1-USUARIO
+                       MOVE DIA            TO DIA1-USUARIO.
+           IF (ANO*10000+MES*100+DIA) < 
+                (ANO1-USUARIO*10000+MES1-USUARIO*100+DIA1-USUARIO)
+                       
+
            COMPUTE CENT-IMPOR-USER = (EURENT-USUARIO * 100)
                                      + EURDEC-USUARIO.
 
@@ -274,6 +289,9 @@
            DISPLAY "EUR de su cuenta" LINE 11 COL 49.
            DISPLAY "a la cuenta cuyo titular es" LINE 12 COL 19.
            DISPLAY NOMBRE-DESTINO LINE 12 COL 48.
+           DISPLAY "Como la fecha introducida es menor a la actual" 
+                LINE 14 COL 19
+           DISPLAY "se va a utilizar la fecha de hoy" LINE 15 COL 19
 
            DISPLAY "Enter - Confirmar" LINE 24 COL 2.
            DISPLAY "ESC - Cancelar" LINE 24 COL 66.
@@ -324,51 +342,14 @@
 
       *  Comparamos que el campo de fecha esta vacio para meter la fecha actual o ponemos la fecha indicada
       
-           IF DIA1-USUARIO = 0
-                       MOVE LAST-MOV-NUM   TO MOV-NUM
-                       MOVE TNUM           TO MOV-TARJETA
-                       MOVE ANO            TO MOV-ANO
-                       MOVE MES            TO MOV-MES
-                       MOVE DIA            TO MOV-DIA
-                       MOVE HORAS          TO MOV-HOR
-                       MOVE MINUTOS        TO MOV-MIN
-                       MOVE SEGUNDOS       TO MOV-SEG.   
-           IF MES1-USUARIO = 0
-                       MOVE LAST-MOV-NUM   TO MOV-NUM
-                       MOVE TNUM           TO MOV-TARJETA
-                       MOVE ANO            TO MOV-ANO
-                       MOVE MES            TO MOV-MES
-                       MOVE DIA            TO MOV-DIA
-                       MOVE HORAS          TO MOV-HOR
-                       MOVE MINUTOS        TO MOV-MIN
-                       MOVE SEGUNDOS       TO MOV-SEG.
-           IF ANO1-USUARIO = 0
-                       MOVE LAST-MOV-NUM   TO MOV-NUM
-                       MOVE TNUM           TO MOV-TARJETA
-                       MOVE ANO            TO MOV-ANO
-                       MOVE MES            TO MOV-MES
-                       MOVE DIA            TO MOV-DIA
-                       MOVE HORAS          TO MOV-HOR
-                       MOVE MINUTOS        TO MOV-MIN
-                       MOVE SEGUNDOS       TO MOV-SEG.
-           IF ANO*10000+MES*100+DIA > ANO1-USUARIO*10000+MES1-USUARIO*100+DIA1-USUARIO
-                       MOVE LAST-MOV-NUM   TO MOV-NUM
-                       MOVE TNUM           TO MOV-TARJETA
-                       MOVE ANO            TO MOV-ANO
-                       MOVE MES            TO MOV-MES
-                       MOVE DIA            TO MOV-DIA
-                       MOVE HORAS          TO MOV-HOR
-                       MOVE MINUTOS        TO MOV-MIN
-                       MOVE SEGUNDOS       TO MOV-SEG.
-           IF ANO*10000+MES*100+DIA < ANO1-USUARIO*10000+MES1-USUARIO*100+DIA1-USUARIO
-                       MOVE LAST-MOV-NUM   TO MOV-NUM
-                       MOVE TNUM           TO MOV-TARJETA
-                       MOVE ANO1-USUARIO   TO MOV-ANO
-                       MOVE MES1-USUARIO   TO MOV-MES
-                       MOVE DIA1-USUARIO   TO MOV-DIA
-                       MOVE HORAS          TO MOV-HOR
-                       MOVE MINUTOS        TO MOV-MIN
-                       MOVE SEGUNDOS       TO MOV-SEG.
+           MOVE LAST-MOV-NUM   TO MOV-NUM.
+           MOVE TNUM           TO MOV-TARJETA.
+           MOVE ANO1-USUARIO   TO MOV-ANO.
+           MOVE MES1-USUARIO   TO MOV-MES.
+           MOVE DIA1-USUARIO   TO MOV-DIA.
+           MOVE HORAS          TO MOV-HOR.
+           MOVE MINUTOS        TO MOV-MIN.
+           MOVE SEGUNDOS       TO MOV-SEG.
 
            
 
@@ -391,9 +372,9 @@
 
            MOVE LAST-MOV-NUM   TO MOV-NUM.
            MOVE CUENTA-DESTINO TO MOV-TARJETA.
-           MOVE ANO            TO MOV-ANO.
-           MOVE MES            TO MOV-MES.
-           MOVE DIA            TO MOV-DIA.
+           MOVE ANO1-USUARIO   TO MOV-ANO.
+           MOVE MES1-USUARIO   TO MOV-MES.
+           MOVE DIA1-USUARIO   TO MOV-DIA.
            MOVE HORAS          TO MOV-HOR.
            MOVE MINUTOS        TO MOV-MIN.
            MOVE SEGUNDOS       TO MOV-SEG.
@@ -445,7 +426,7 @@
            CLOSE TARJETAS.
            PERFORM IMPRIMIR-CABECERA THRU IMPRIMIR-CABECERA.
            DISPLAY "La cuenta introducida es incorrecta" LINE 9 COL 22
-               WITH FOREGROUND-COLOR IS BLACK
+               WITH FOREGROUND-COLOR IS WHITE
                     BACKGROUND-COLOR IS RED.
            DISPLAY "Enter - Salir" LINE 24 COL 33.
            GO TO EXIT-ENTER.

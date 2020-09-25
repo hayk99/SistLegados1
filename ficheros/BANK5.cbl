@@ -82,6 +82,10 @@
        77 CON                      PIC   X(35) VALUE "Ingreso".
        77 PRESSED-KEY              PIC    9(4).
 
+       77 BILL10                     PIC  9(4).
+       77 BILL20                     PIC  9(4).
+       77 BILL50                     PIC  9(4).
+
        LINKAGE SECTION.
        77 TNUM                     PIC  9(16).
 
@@ -93,10 +97,17 @@
 
 
        01 ENTRADA-USUARIO.
-           05 FILLER BLANK ZERO AUTO UNDERLINE
-               LINE 13 COL 41 PIC 9(7) USING EURENT-USUARIO.
+      *     05 FILLER BLANK ZERO AUTO UNDERLINE
+      *         LINE 13 COL 41 PIC 9(7) USING EURENT-USUARIO.
+      *     05 FILLER BLANK ZERO UNDERLINE
+      *         LINE 13 COL 49 PIC 9(2) USING EURDEC-USUARIO.
+
            05 FILLER BLANK ZERO UNDERLINE
-               LINE 13 COL 49 PIC 9(2) USING EURDEC-USUARIO.
+                LINE 14 COL 41 PIC 9(4) USING BILL10.    
+           05 FILLER BLANK ZERO UNDERLINE
+                LINE 15 COL 41 PIC 9(4) USING BILL20. 
+           05 FILLER BLANK ZERO UNDERLINE
+                LINE 16 COL 41 PIC 9(4) USING BILL50.  
 
        01 SALDO-DISPLAY.
            05 FILLER SIGN IS LEADING SEPARATE
@@ -219,10 +230,10 @@
 
            DISPLAY SALDO-DISPLAY.
 
-           DISPLAY "Por favor,introduzca billetes" LINE 11 COL 19.
-           DISPLAY "Cantidad introducida:         " LINE 13 COL 19.
-           DISPLAY "." LINE 13 COL 48.
-           DISPLAY "EUR" LINE 13 COL 52.
+           DISPLAY "Por favor,introduzca billetes" LINE 11 COL 19.1
+           DISPLAY "Billetes de 10 EUR:         " LINE 14 COL 19.
+           DISPLAY "Billetes de 20 EUR:         " LINE 15 COL 19.
+           DISPLAY "Billetes de 50 EUR:         " LINE 16 COL 19.
 
        CONF2.
            ACCEPT ENTRADA-USUARIO ON EXCEPTION
@@ -232,8 +243,8 @@
                    GO TO CONF2
                END-IF.
 
-           COMPUTE CENT-IMPOR-USER = (EURENT-USUARIO * 100)
-                                     + EURDEC-USUARIO.
+           COMPUTE CENT-IMPOR-USER = (BILL10 * 1000) + (BILL20 * 2000)
+                                     + (BILL50 * 5000).
            ADD CENT-IMPOR-USER TO CENT-ACUMULADOR.
 
 
