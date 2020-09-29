@@ -659,11 +659,10 @@
            MOVE FUNCTION MOD(LINEA-ESP-ACTUAL, 2)
                TO MODULO-LIN-ACTUAL.
 
-           IF MODULO-LIN-ACTUAL = 0 THEN
+           IF MODULO-LIN-ACTUAL = 0
                DISPLAY FILA-ESPECTACULO-PAR
            ELSE
-               DISPLAY FILA-ESPECTACULO-IMPAR
-           END-IF.
+               DISPLAY FILA-ESPECTACULO-IMPAR.
 
 
        FILTRADO.

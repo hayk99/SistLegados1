@@ -247,6 +247,8 @@
                                      + (BILL50 * 5000).
            ADD CENT-IMPOR-USER TO CENT-ACUMULADOR.
 
+           COMPUTE EURENT-USUARIO = (CENT-IMPOR-USER/100).
+
 
 
 
