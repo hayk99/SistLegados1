@@ -20,6 +20,12 @@
            RECORD KEY IS MOV-NUM
            FILE STATUS IS FSM.
 
+           SELECT F-PROGRAMADAS ASSIGN TO DISK
+           ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC
+           RECORD KEY IS PROG-NUM
+           FILE STATUS IS FSP.
+
 
        DATA DIVISION.
        FILE SECTION.
@@ -47,10 +53,27 @@
            02 MOV-SALDOPOS-ENT     PIC  S9(9).
            02 MOV-SALDOPOS-DEC     PIC   9(2).
 
+       FD F-PROGRAMADAS
+           LABEL RECORD STANDARD
+           VALUE OF FILE-ID IS "programadas.ubd".
+       01 PROGRAMADAS-REG.
+           02 PROG-NUM              PIC  9(35).
+      *    TARJETA DE ORIGEN     
+           02 PROG-TARJETA-O        PIC  9(16).
+      *    TARJETA DE DESTINO     
+           02 PROG-TARJETA-D        PIC  9(16).
+           02 PROG-ANO              PIC   9(4).
+           02 PROG-MES              PIC   9(2).
+           02 PROG-DIA              PIC   9(2).
+           02 PROG-IMPORTE-ENT      PIC  S9(7).
+           02 PROG-IMPORTE-DEC      PIC   9(2).
+           02 PROG-CONCEPTO         PIC  X(35).
+
 
        WORKING-STORAGE SECTION.
        77 FST                      PIC   X(2).
        77 FSM                      PIC   X(2).
+       77 FSP                      PIC   X(2).
 
        78 BLACK                  VALUE      0.
        78 BLUE                   VALUE      1.
@@ -87,6 +110,8 @@
        77 LAST-USER-ORD-MOV-NUM    PIC  9(35).
        77 LAST-USER-DST-MOV-NUM    PIC  9(35).
 
+       77 LAST-PROG-NUM             PIC  9(35).
+
        77 EURENT-USUARIO           PIC  S9(7).
        77 EURDEC-USUARIO           PIC   9(2).
        77 CUENTA-DESTINO           PIC  9(16).
@@ -103,7 +128,7 @@
        77 MES1-USUARIO              PIC   9(2).
        77 ANO1-USUARIO              PIC   9(4).
 
-       77 MENSUALMENTE              PIC   X(1).
+       77 MENSUALMENTE              PIC   9(2).
 
        LINKAGE SECTION.
        77 TNUM                     PIC  9(16).
@@ -130,7 +155,7 @@
            05 ANO-MIN BLANK ZERO AUTO UNDERLINE
                LINE 18 COL 60 PIC 9(4) USING ANO1-USUARIO.
            05 FILLER AUTO UNDERLINE
-               LINE 20 COL 54 PIC X(1) USING MENSUALMENTE.
+               LINE 20 COL 54 PIC 9(2) USING MENSUALMENTE.
 
        01 SALDO-DISPLAY.
            05 FILLER SIGN IS LEADING SEPARATE
@@ -149,6 +174,7 @@
            INITIALIZE EURENT-USUARIO.
            INITIALIZE EURDEC-USUARIO.
            INITIALIZE LAST-MOV-NUM.
+           INITIALIZE LAST-PROG-NUM.
            INITIALIZE LAST-USER-ORD-MOV-NUM.
            INITIALIZE LAST-USER-DST-MOV-NUM.
            INITIALIZE DIA1-USUARIO.
@@ -190,6 +216,8 @@
            END-IF.
            GO TO LECTURA-MOVIMIENTOS.
 
+
+
        ORDENACION-TRF.
            CLOSE F-MOVIMIENTOS.
 
@@ -218,8 +246,9 @@
            DISPLAY "EUR" LINE 16 COL 66.
            DISPLAY "Indique la fecha *                   /  /" 
               LINE 18 COL 19.
-           DISPLAY "Realizar mensualmente (y/n) " LINE 20 COL 19. 
+           DISPLAY "Realizar mensualmente durante ** " LINE 20 COL 19. 
            DISPLAY "* opcional" LINE 22 COL 19. 
+           DISPLAY "** indicar el nUmero de meses" LINE 23 COL 19. 
 
            COMPUTE CENT-SALDO-ORD-USER = (MOV-SALDOPOS-ENT * 100)
                                          + MOV-SALDOPOS-DEC.
@@ -231,26 +260,14 @@
                GO TO INDICAR-CTA-DST
            END-IF.
 
-           IF (DIA1-USUARIO = 0) OR (MES1-USUARIO = 0) 
-                OR (ANO1-USUARIO = 0)
-                       MOVE ANO            TO ANO1-USUARIO
-                       MOVE MES            TO MES1-USUARIO
-                       MOVE DIA            TO DIA1-USUARIO.
-                        
-           IF (ANO*10000+MES*100+DIA) >= 
-                (ANO1-USUARIO*10000+MES1-USUARIO*100+DIA1-USUARIO)
-                       MOVE ANO            TO ANO1-USUARIO
-                       MOVE MES            TO MES1-USUARIO
-                       MOVE DIA            TO DIA1-USUARIO.
-           IF (ANO*10000+MES*100+DIA) < 
-                (ANO1-USUARIO*10000+MES1-USUARIO*100+DIA1-USUARIO)
+
                        
 
            COMPUTE CENT-IMPOR-USER = (EURENT-USUARIO * 100)
                                      + EURDEC-USUARIO.
 
            IF CENT-IMPOR-USER > CENT-SALDO-ORD-USER THEN
-                   DISPLAY "Indique una cantidad menor!!" LINE 20 COL 19
+                   DISPLAY "Indique una cantidad menor!!" LINE 6 COL 19
                     WITH BACKGROUND-COLOR RED
                    GO TO INDICAR-CTA-DST
            END-IF.
@@ -274,7 +291,7 @@
                EXIT PROGRAM
            END-IF.
 
-           DISPLAY "Indique una cantidad menor!!" LINE 20 COL 19
+           DISPLAY "Indique una cantidad menor!!" LINE 6 COL 19
             WITH BACKGROUND-COLOR RED.
 
            GO TO NO-MOVIMIENTOS.
@@ -340,7 +357,26 @@
 
            ADD 1 TO LAST-MOV-NUM.
 
-      *  Comparamos que el campo de fecha esta vacio para meter la fecha actual o ponemos la fecha indicada
+           IF (DIA1-USUARIO = 0) OR (MES1-USUARIO = 0) 
+                OR (ANO1-USUARIO = 0)
+                       MOVE ANO            TO ANO1-USUARIO
+                       MOVE MES            TO MES1-USUARIO
+                       MOVE DIA            TO DIA1-USUARIO.
+                        
+           IF (ANO*10000+MES*100+DIA) >= 
+                (ANO1-USUARIO*10000+MES1-USUARIO*100+DIA1-USUARIO)
+                       MOVE ANO            TO ANO1-USUARIO
+                       MOVE MES            TO MES1-USUARIO
+                       MOVE DIA            TO DIA1-USUARIO.
+
+
+           IF (ANO*10000+MES*100+DIA) < 
+                (ANO1-USUARIO*10000+MES1-USUARIO*100+DIA1-USUARIO)
+                  OPEN I-O F-PROGRAMADAS.
+                   IF FST <> 00
+                      GO TO PSYS-ERR.
+                  GO TO LECTURA-PROGRAMADAS.
+
       
            MOVE LAST-MOV-NUM   TO MOV-NUM.
            MOVE TNUM           TO MOV-TARJETA.
@@ -430,3 +466,29 @@
                     BACKGROUND-COLOR IS RED.
            DISPLAY "Enter - Salir" LINE 24 COL 33.
            GO TO EXIT-ENTER.
+
+
+
+       FICHERO-PROGRAMADAS.
+           MOVE LAST-MOV-NUM   TO PROG-NUM.
+           MOVE TNUM           TO PROG-TARJETA-O.
+           MOVE CUENTA-DESTINO TO PROG-TARJETA-D.
+           MOVE ANO1-USUARIO   TO PROG-ANO.
+           MOVE MES1-USUARIO   TO PROG-MES.
+           MOVE DIA1-USUARIO   TO PROG-DIA.
+
+           MOVE EURENT-USUARIO TO MOV-IMPORTE-ENT.
+           MOVE EURDEC-USUARIO TO MOV-IMPORTE-DEC.
+
+           MOVE MSJ-DST        TO MOV-CONCEPTO.
+
+
+           GO TO P-EXITO.
+
+       LECTURA-PROGRAMADAS.
+           READ F-PROGRAMADAS NEXT RECORD AT END 
+                  GO TO FICHERO-PROGRAMADAS.
+           IF LAST-PROG-NUM < PROG-NUM THEN
+               MOVE PROG-NUM TO LAST-PROG-NUM
+           END-IF.
+           GO TO LECTURA-PROGRAMADAS.

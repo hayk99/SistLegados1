@@ -123,7 +123,7 @@
            IF PIN-INTRODUCIDO <> PIN-INTRODUCIDO2 
                 GO TO PSYS-ERR
            ELSE 
-                GO TO PSYS-ERR2.
+                GO TO CAMBIO-PIN.
 
 
 
@@ -133,15 +133,15 @@
 
         PSYS-ERR.
             PERFORM IMPRIMIR-CABECERA THRU IMPRIMIR-CABECERA.
-            DISPLAY "Ha ocurrido un error interno..." LINE 9 COL 25
+            DISPLAY "Ha ocurrido un error..." LINE 9 COL 25
                 WITH FOREGROUND-COLOR IS BLACK
                      BACKGROUND-COLOR IS RED.
-            DISPLAY "Vuelva mas tarde" LINE 11 COL 32
+            DISPLAY "Los pins introducidos son distintos" LINE 11 COL 32
                 WITH FOREGROUND-COLOR IS BLACK
                      BACKGROUND-COLOR IS RED.
             DISPLAY "Enter - Aceptar" LINE 24 COL 33.
 
-        PSYS-ERR2.
+        CAMBIO-PIN.
             PERFORM IMPRIMIR-CABECERA THRU IMPRIMIR-CABECERA.
             MOVE TNUM TO TNUMF.
             MOVE PIN-INTRODUCIDO TO TPINF.

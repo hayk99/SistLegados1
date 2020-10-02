@@ -63,6 +63,18 @@
                10 MILISEGUNDOS     PIC  9(2).
            05 DIF-GMT              PIC S9(4).
 
+       01 CAMPOS-FECHA-ANTIGUO.      
+           05 FECHA-ANTIGUO.
+               10 ANO-ANTIGUO      PIC  9(4).
+               10 MES-ANTIGUO      PIC  9(2).
+               10 DIA-ANTIGUO      PIC  9(2).
+           05 HORA-ANTIGUO.
+               10 HORAS-ANTIGUO            PIC  9(2).
+               10 MINUTOS-ANTIGUO          PIC  9(2).
+               10 SEGUNDOS-ANTIGUO         PIC  9(2).
+               10 MILISEGUNDOS-ANTIGUO     PIC  9(2).
+           05 DIF-GMT-ANTIGUO      PIC S9(4).
+ 
        01 KEYBOARD-STATUS           PIC 9(4).
            88 ENTER-PRESSED          VALUE 0.
            88 PGUP-PRESSED        VALUE 2001.
@@ -74,6 +86,9 @@
        77 PRESSED-KEY              PIC  9(4).
        77 PIN-INTRODUCIDO          PIC  9(4).
        77 CHOICE                   PIC  9(1).
+
+       77 FECHA-ACTUAL                 PIC   9(8).
+       77 FECHA-ANTIGUA                PIC   9(8).
 
 
        SCREEN SECTION.
@@ -98,8 +113,10 @@
 
            DISPLAY  "Cajero Automatico UnizarBank" LINE 2 COL 26
                WITH FOREGROUND-COLOR IS CYAN.
-
+           MOVE CAMPOS-FECHA TO CAMPOS-FECHA-ANTIGUO.
            MOVE FUNCTION CURRENT-DATE TO CAMPOS-FECHA.
+
+
 
            DISPLAY DIA LINE 4 COL 32. 
            DISPLAY "-" LINE 4 COL 34.
@@ -112,21 +129,31 @@
 
 
        P1.
+           DISPLAY SEGUNDOS LINE 4 COL 50.
+           DISPLAY SEGUNDOS-ANTIGUO LINE 5 COL 50.
            DISPLAY "Bienvenido a UnizarBank" LINE 8 COL 28.
            DISPLAY "Por favor, introduzca la tarjeta para operar" LINE 10 COL 18.
-
            DISPLAY "Enter - Aceptar" LINE 24 COL 33.
 
        P1-ENTER.
+           COMPUTE FECHA-ACTUAL = (ANO * 10000)
+                               + (MES * 100)
+                               + DIA.
+           COMPUTE FECHA-ANTIGUA = (ANO-ANTIGUO * 10000)
+                               + (MES-ANTIGUO * 100)
+                               + DIA-ANTIGUO.
+           IF (FECHA-ANTIGUA < FECHA-ACTUAL)
+      *    ejecutar transacciones  
+      *     PERFORM .
            ACCEPT CHOICE LINE 24 COL 80 ON EXCEPTION
            IF ENTER-PRESSED
                GO TO P2
            ELSE
-               GO TO P1-ENTER.
+               GO TO IMPRIMIR-CABECERA.
 
 
        P2.
-           PERFORM IMPRIMIR-CABECERA THRU IMPRIMIR-CABECERA.
+           PERFORM IMPRIMIR-CABECERA THRU IMPRIMIR-CABECERA.  
            DISPLAY "ESC - Salir" LINE 24 COL 33.
            INITIALIZE TNUM.
            INITIALIZE PIN-INTRODUCIDO.
