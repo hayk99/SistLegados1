@@ -65,7 +65,7 @@
            02 PROG-ANO              PIC   9(4).
            02 PROG-MES              PIC   9(2).
            02 PROG-DIA              PIC   9(2).
-           02 PROG-IMPORTE-ENT      PIC  S9(7).
+           02 PROG-IMPORTE-ENT      PIC   9(7).
            02 PROG-IMPORTE-DEC      PIC   9(2).
            02 PROG-CONCEPTO         PIC  X(35).
 
@@ -129,6 +129,9 @@
        77 ANO1-USUARIO              PIC   9(4).
 
        77 MENSUALMENTE              PIC   9(2).
+
+       77 FECHA-INDICADA            PIC   9(8).
+       77 FECHA-ACTUAL              PIC   9(8).
 
        LINKAGE SECTION.
        77 TNUM                     PIC  9(16).
@@ -233,6 +236,7 @@
 
            MOVE LAST-USER-ORD-MOV-NUM TO MOV-NUM.
 
+      * Lee el fichero de movimientos para calcular saldo creo ??
            PERFORM MOVIMIENTOS-OPEN THRU MOVIMIENTOS-OPEN.
            READ F-MOVIMIENTOS INVALID KEY GO PSYS-ERR.
            DISPLAY SALDO-DISPLAY.
@@ -248,7 +252,7 @@
               LINE 18 COL 19.
            DISPLAY "Realizar mensualmente durante ** " LINE 20 COL 19. 
            DISPLAY "* opcional" LINE 22 COL 19. 
-           DISPLAY "** indicar el nUmero de meses" LINE 23 COL 19. 
+           DISPLAY "** indicar el numero de meses" LINE 23 COL 19. 
 
            COMPUTE CENT-SALDO-ORD-USER = (MOV-SALDOPOS-ENT * 100)
                                          + MOV-SALDOPOS-DEC.
@@ -267,7 +271,7 @@
                                      + EURDEC-USUARIO.
 
            IF CENT-IMPOR-USER > CENT-SALDO-ORD-USER THEN
-                   DISPLAY "Indique una cantidad menor!!" LINE 6 COL 19
+                   DISPLAY "Indique una cantidad menor!!" LINE 6 COL 27
                     WITH BACKGROUND-COLOR RED
                    GO TO INDICAR-CTA-DST
            END-IF.
@@ -306,9 +310,25 @@
            DISPLAY "EUR de su cuenta" LINE 11 COL 49.
            DISPLAY "a la cuenta cuyo titular es" LINE 12 COL 19.
            DISPLAY NOMBRE-DESTINO LINE 12 COL 48.
-           DISPLAY "Como la fecha introducida es menor a la actual" 
+
+           
+           COMPUTE FECHA-INDICADA = (ANO1-USUARIO * 10000 
+            + MES1-USUARIO*100 + DIA1-USUARIO).
+           
+           COMPUTE FECHA-ACTUAL = (ANO * 10000 + MES * 100 + DIA).
+
+
+           IF FECHA-INDICADA < FECHA-ACTUAL THEN
+            DISPLAY "Como la fecha introducida es menor a la actual" 
                 LINE 14 COL 19
-           DISPLAY "se va a utilizar la fecha de hoy" LINE 15 COL 19
+            DISPLAY "se va a utilizar la fecha de hoy" LINE 15 COL 19
+           ELSE 
+            DISPLAY "La transferencia se efectuara el dia   /  /"
+                LINE 14 COL 19
+            DISPLAY DIA1-USUARIO LINE 14 COL 56
+            DISPLAY MES1-USUARIO LINE 14 COL 59
+            DISPLAY ANO1-USUARIO LINE 14 COL 62
+           END-IF
 
            DISPLAY "Enter - Confirmar" LINE 24 COL 2.
            DISPLAY "ESC - Cancelar" LINE 24 COL 66.
@@ -324,6 +344,7 @@
        VERIFICACION-CTA-CORRECTA.
            OPEN I-O TARJETAS.
            IF FST <> 00
+              DISPLAY "Error verif cta correcta" LINE 24 COL 10
               GO TO PSYS-ERR.
 
            MOVE CUENTA-DESTINO TO TNUM-E.
@@ -348,7 +369,9 @@
            CLOSE F-MOVIMIENTOS.
            MOVE LAST-USER-DST-MOV-NUM TO MOV-NUM.
            PERFORM MOVIMIENTOS-OPEN THRU MOVIMIENTOS-OPEN.
-           READ F-MOVIMIENTOS INVALID KEY GO PSYS-ERR.
+           READ F-MOVIMIENTOS INVALID KEY 
+           DISPLAY "Error verif GUARDAR-TRF" LINE 24 COL 10
+           GO PSYS-ERR.
 
            COMPUTE CENT-SALDO-DST-USER = (MOV-SALDOPOS-ENT * 100)
                                          + MOV-SALDOPOS-DEC.
@@ -369,13 +392,14 @@
                        MOVE MES            TO MES1-USUARIO
                        MOVE DIA            TO DIA1-USUARIO.
 
-
+      * Caso de transferencia futura que hay que programar
            IF (ANO*10000+MES*100+DIA) < 
                 (ANO1-USUARIO*10000+MES1-USUARIO*100+DIA1-USUARIO)
                   OPEN I-O F-PROGRAMADAS.
-                   IF FST <> 00
+                   IF FSP <> 00
+                      DISPLAY "Error fecha futura" LINE 24 COL 10  
                       GO TO PSYS-ERR.
-                  GO TO LECTURA-PROGRAMADAS.
+                  GO TO ESCRITURA-PROGRAMADAS.
 
       
            MOVE LAST-MOV-NUM   TO MOV-NUM.
@@ -388,7 +412,7 @@
            MOVE SEGUNDOS       TO MOV-SEG.
 
            
-
+      * Posible error 
            MULTIPLY -1 BY EURENT-USUARIO.
            MOVE EURENT-USUARIO TO MOV-IMPORTE-ENT.
            MULTIPLY -1 BY EURENT-USUARIO.
@@ -438,6 +462,17 @@
            DISPLAY "Enter - Aceptar" LINE 25 COL 33.
            GO TO EXIT-ENTER.
 
+       P-PROG-EXITO.
+           PERFORM IMPRIMIR-CABECERA THRU IMPRIMIR-CABECERA.
+           DISPLAY "Transferencia programada correctamente para el dia "
+            LINE 11 COL 19
+           DISPLAY "  /  /    " LINE 11 COL 70
+           DISPLAY DIA1-USUARIO LINE 11 COL 70
+           DISPLAY MES1-USUARIO LINE 11 COL 73
+           DISPLAY ANO1-USUARIO LINE 11 COL 76
+           
+           GO TO EXIT-ENTER.
+
        PSYS-ERR.
            CLOSE TARJETAS.
            CLOSE F-MOVIMIENTOS.
@@ -467,28 +502,28 @@
            DISPLAY "Enter - Salir" LINE 24 COL 33.
            GO TO EXIT-ENTER.
 
+       ESCRITURA-PROGRAMADAS.
+           READ F-PROGRAMADAS NEXT RECORD AT END 
+                  GO TO ESCRITURA-PROGRAMADAS.
+           IF LAST-PROG-NUM < PROG-NUM THEN
+               MOVE PROG-NUM TO LAST-PROG-NUM
+           END-IF.
+           GO TO ESCRITURA-PROGRAMADAS.
+          
+           ADD 1 TO LAST-PROG-NUM
 
-
-       FICHERO-PROGRAMADAS.
-           MOVE LAST-MOV-NUM   TO PROG-NUM.
+           MOVE LAST-PROG-NUM  TO PROG-NUM.
            MOVE TNUM           TO PROG-TARJETA-O.
            MOVE CUENTA-DESTINO TO PROG-TARJETA-D.
            MOVE ANO1-USUARIO   TO PROG-ANO.
            MOVE MES1-USUARIO   TO PROG-MES.
            MOVE DIA1-USUARIO   TO PROG-DIA.
+           MOVE EURENT-USUARIO TO PROG-IMPORTE-ENT.
+           MOVE EURDEC-USUARIO TO PROG-IMPORTE-DEC.
+           MOVE MSJ-DST        TO PROG-CONCEPTO.
 
-           MOVE EURENT-USUARIO TO MOV-IMPORTE-ENT.
-           MOVE EURDEC-USUARIO TO MOV-IMPORTE-DEC.
+           WRITE PROGRAMADAS-REG INVALID KEY GO TO PSYS-ERR
+           CLOSE F-PROGRAMADAS
+           GO TO P-PROG-EXITO.
 
-           MOVE MSJ-DST        TO MOV-CONCEPTO.
 
-
-           GO TO P-EXITO.
-
-       LECTURA-PROGRAMADAS.
-           READ F-PROGRAMADAS NEXT RECORD AT END 
-                  GO TO FICHERO-PROGRAMADAS.
-           IF LAST-PROG-NUM < PROG-NUM THEN
-               MOVE PROG-NUM TO LAST-PROG-NUM
-           END-IF.
-           GO TO LECTURA-PROGRAMADAS.

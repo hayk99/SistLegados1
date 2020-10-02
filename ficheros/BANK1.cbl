@@ -113,6 +113,7 @@
 
            DISPLAY  "Cajero Automatico UnizarBank" LINE 2 COL 26
                WITH FOREGROUND-COLOR IS CYAN.
+               
            MOVE CAMPOS-FECHA TO CAMPOS-FECHA-ANTIGUO.
            MOVE FUNCTION CURRENT-DATE TO CAMPOS-FECHA.
 
