@@ -470,9 +470,11 @@
            GO TO LECTURA-MOVIMIENTOS.
 
        REGISTAR-MOVIMIENTO.
-      *    calculo del saldo del usuario
-           COMPUTE CENT-SALDO-DST-USER = (MOV-SALDOPOS-ENT * 100)
-                                         + MOV-SALDOPOS-DEC.
+      *    calculo del saldo del usuario buscando en el fichero
+           SALDO-O-ENT
+           SALDO-O-DEC
+           
+
            ADD 1 TO LAST-MOV-NUM.
       *    creamos los registros PARA EL QUE TRANSFIERE
            MOVE LAST-MOV-NUM   TO MOV-NUM.
@@ -491,13 +493,16 @@
 
            MOVE "transf programada"       TO MOV-CONCEPTO.
 
-           COMPUTE CENT-IMPRT-USER = (PROG-IMPORTE-ENT * 100)
+      *    CANTIDAD A TRANSFERIR     
+           COMPUTE CENT-IMPORTE-TRASNF = (PROG-IMPORTE-ENT * 100)
                                          + PROG-IMPORTE-DEC.
-           SUBTRACT CENT-IMPRT-USER FROM CENT-SALDO-DST-USER
+           COMPUTE SALDO-ORIGEN = (SALDO-O-ENT * 100)
+                                         + SALDO-O-DEC.
+           SUBTRACT CENT-IMPORT-TRASNF FROM SALDO-ORIGEN.
 
-           COMPUTE PROG-SALDOPOS-ENT = (CENT-SALDO-ORD-USER / 100).
-           MOVE FUNCTION MOD(CENT-SALDO-ORD-USER, 100)
-               TO PROG-SALDOPOS-ENT.
+           COMPUTE MOV-SALDOPOS-ENT = (SALDO-ORIGEN / 100).
+           MOVE FUNCTION MOD(SALDO-ORIGEN, 100)
+               TO MOV-SALDOPOS-ENT.
            
            WRITE MOVIMIENTO-REG INVALID KEY GO TO PSYS-ERR.
 
@@ -514,23 +519,22 @@
            MOVE 00             TO MOV-SEG.
 
            MOVE PROG-IMPORTE-ENT TO MOV-IMPORTE-ENT.
-           MOVE PROG-IMPORTE-DEC TO PROG-IMPORTE-DEC.
+           MOVE PROG-IMPORTE-DEC TO MOV-IMPORTE-DEC.
 
-           MOVE "transferido programada"       TO MOV-CONCEPTO.
+           MOVE "nos transfieren programada"       TO MOV-CONCEPTO.
 
+      *    calculo del saldo del usuario buscando en el fichero
+           SALDO-D-ENT
+           SALDO-D-DEC
            
-           ADD CENT-IMPRT-USER TO CENT-SALDO-DST-USER
-           COMPUTE 
-
-           COMPUTE PROG-SALDOPOS-ENT = (CENT-SALDO-ORD-USER / 100).
-           MOVE FUNCTION MOD(CENT-SALDO-ORD-USER, 100)
-               TO PROG-SALDOPOS-ENT.
+           ADD PROG-IMPORTE-ENT TO SALDO-D-ENT.
+           ADD PROG-IMPORTE-DEC TO SALGO-D-DEC.
            
+           MOVE SALDO-D-ENT TO MOV-SALDOPOS-ENT.
+           MOVE SALDO-D-DEC TO MOV-SALDOPOS-DEC.
+
            WRITE MOVIMIENTO-REG INVALID KEY GO TO PSYS-ERR.
-
-
-
-
+           
            GO TO REALIZAR-FUTURAS2
            
 
