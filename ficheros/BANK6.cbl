@@ -397,8 +397,7 @@
                 (ANO1-USUARIO*10000+MES1-USUARIO*100+DIA1-USUARIO)
                   OPEN I-O F-PROGRAMADAS.
                    IF FSP <> 00
-                      DISPLAY "Error fecha futura" LINE 24 COL 10  
-                      GO TO PSYS-ERR.
+                      GO TO PSYS-ERR2.
                   GO TO ESCRITURA-PROGRAMADAS.
 
       
@@ -476,6 +475,7 @@
        PSYS-ERR.
            CLOSE TARJETAS.
            CLOSE F-MOVIMIENTOS.
+           CLOSE F-PROGRAMADAS.
 
            PERFORM IMPRIMIR-CABECERA THRU IMPRIMIR-CABECERA.
            DISPLAY "Ha ocurrido un error interno" LINE 09 COL 25
@@ -485,6 +485,21 @@
                WITH FOREGROUND-COLOR IS BLACK
                     BACKGROUND-COLOR IS RED.
            DISPLAY "Enter - Aceptar" LINE 24 COL 33.
+
+           PSYS-ERR2.
+           CLOSE TARJETAS.
+           CLOSE F-MOVIMIENTOS.
+           CLOSE F-PROGRAMADAS.
+
+           PERFORM IMPRIMIR-CABECERA THRU IMPRIMIR-CABECERA.
+           DISPLAY "Ha ocurrido un error interno22222222" LINE 09 COL 25
+               WITH FOREGROUND-COLOR IS BLACK
+                    BACKGROUND-COLOR IS RED.
+           DISPLAY "Vuelva mas tarde" LINE 11 COL 32
+               WITH FOREGROUND-COLOR IS BLACK
+                    BACKGROUND-COLOR IS RED.
+           DISPLAY "Enter - Aceptar" LINE 24 COL 33.
+
 
        EXIT-ENTER.
            ACCEPT PRESSED-KEY LINE 24 COL 80 
@@ -503,6 +518,7 @@
            GO TO EXIT-ENTER.
 
        ESCRITURA-PROGRAMADAS.
+       DISPLAY "PPPPPPPPPp" LINE 5 COL 22
            READ F-PROGRAMADAS NEXT RECORD AT END 
                   GO TO ESCRITURA-PROGRAMADAS.
            IF LAST-PROG-NUM < PROG-NUM THEN
