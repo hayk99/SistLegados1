@@ -20,6 +20,12 @@
            RECORD KEY IS INUM
            FILE STATUS IS FSI.
 
+           SELECT F-PROGRAMADAS ASSIGN TO DISK
+           ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC
+           RECORD KEY IS PROG-NUM
+           FILE STATUS IS FSA.
+
 
        DATA DIVISION.
        FILE SECTION.
@@ -37,10 +43,27 @@
            02 INUM      PIC 9(16).
            02 IINTENTOS PIC 9(1).
 
+       FD F-PROGRAMADAS 
+           LABEL RECORD STANDARD
+           VALUE OF FILE-ID IS "programadas.ubd".
+       01 PROGRAMADAS-REG.
+           02 PROG-NUM              PIC  9(35).
+      *    TARJETA DE ORIGEN     
+           02 PROG-TARJETA-O        PIC  9(16).
+      *    TARJETA DE DESTINO     
+           02 PROG-TARJETA-D        PIC  9(16).
+           02 PROG-ANO              PIC   9(4).
+           02 PROG-MES              PIC   9(2).
+           02 PROG-DIA              PIC   9(2).
+           02 PROG-IMPORTE-ENT      PIC   9(7).
+           02 PROG-IMPORTE-DEC      PIC   9(2).
+           02 PROG-CONCEPTO         PIC  X(35).
+
 
        WORKING-STORAGE SECTION.
        77 FST                      PIC  X(2).
        77 FSI                      PIC  X(2).
+       77 FSA                      PIC  X(2).
 
        78 BLACK   VALUE 0.
        78 BLUE    VALUE 1.
@@ -101,6 +124,8 @@
            05 PIN-ACCEPT BLANK ZERO SECURE LINE 09 COL 50
                PIC 9(4) USING PIN-INTRODUCIDO.
 
+       
+
 
 
        PROCEDURE DIVISION.
@@ -130,10 +155,8 @@
 
 
        P1.
-           DISPLAY SEGUNDOS LINE 4 COL 50.
-           DISPLAY SEGUNDOS-ANTIGUO LINE 5 COL 50.
+      *     MOVE CAMPOS-FECHA TO CAMPOS-FECHA-ANTIGUO.
            DISPLAY "Bienvenido a UnizarBank" LINE 8 COL 28.
-           DISPLAY "Por favor, introduzca la tarjeta para operar" LINE 10 COL 18.
            DISPLAY "Enter - Aceptar" LINE 24 COL 33.
 
        P1-ENTER.
@@ -144,8 +167,10 @@
                                + (MES-ANTIGUO * 100)
                                + DIA-ANTIGUO.
            IF (FECHA-ANTIGUA < FECHA-ACTUAL)
+              GO TO REALIZAR-FUTURAS.
       *    ejecutar transacciones  
       *     PERFORM .
+
            ACCEPT CHOICE LINE 24 COL 80 ON EXCEPTION
            IF ENTER-PRESSED
                GO TO P2
@@ -246,7 +271,7 @@
 
 
        PSYS-ERR.
-
+           CLOSE F-PROGRAMADAS.
            CLOSE TARJETAS.
            CLOSE INTENTOS.
 
@@ -259,6 +284,28 @@
                     BACKGROUND-COLOR IS RED.
            DISPLAY "Enter - Aceptar" LINE 24 COL 33.
            GO TO PINT-ERR-ENTER.
+
+       PSYS-ERR2.
+           CLOSE F-PROGRAMADAS.
+
+           CLOSE TARJETAS.
+           CLOSE INTENTOS.
+
+           PERFORM IMPRIMIR-CABECERA THRU IMPRIMIR-CABECERA.
+           DISPLAY "Ha ocurrido un error interno2222222" LINE 9 COL 25
+               WITH FOREGROUND-COLOR IS BLACK
+                    BACKGROUND-COLOR IS RED.
+           DISPLAY "Vuelva mas tarde" LINE 11 COL 32
+               WITH FOREGROUND-COLOR IS BLACK
+                    BACKGROUND-COLOR IS RED.
+           DISPLAY "Enter - Aceptar" LINE 24 COL 33.
+           DISPLAY PROG-NUM LINE 7 COL 10
+               WITH FOREGROUND-COLOR IS BLACK
+                    BACKGROUND-COLOR IS RED.
+           GO TO PSYS-ERR3.
+
+        PSYS-ERR3.
+             GO TO  PSYS-ERR3.
 
 
        PINT-ERR.
@@ -325,3 +372,36 @@
        REINICIAR-INTENTOS.
            MOVE 3 TO IINTENTOS.
            REWRITE INTENTOSREG INVALID KEY GO TO PSYS-ERR.
+
+       REALIZAR-FUTURAS.
+           OPEN I-O F-PROGRAMADAS.
+           IF FSA <> 00
+               GO TO PSYS-ERR.
+           GO TO REALIZAR-FUTURAS2.
+
+       REALIZAR-FUTURAS2.
+
+           READ F-PROGRAMADAS INVALID KEY GO TO ESCRIBIR-REG.
+
+
+
+           DISPLAY PROG-NUM LINE 12 COL 10.
+
+           GO TO ESCRIBIR-REG.
+
+       ESCRIBIR-REG.
+          DISPLAY BLANK-SCREEN.
+          DISPLAY PROG-NUM LINE 12 COL 10.
+          DISPLAY PROG-TARJETA-O LINE 13 COL 10.
+          DISPLAY PROG-TARJETA-D LINE 14 COL 10.
+          DISPLAY PROG-ANO LINE 15 COL 10.
+          DISPLAY PROG-MES LINE 16 COL 10.
+          DISPLAY PROG-DIA LINE 17 COL 10.
+          DISPLAY PROG-IMPORTE-DEC LINE 18 COL 10.
+          DISPLAY PROG-IMPORTE-ENT LINE 19 COL 10.
+          DISPLAY PROG-CONCEPTO LINE 20 COL 10.
+
+          CLOSE F-PROGRAMADAS.
+
+           
+
