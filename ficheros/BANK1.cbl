@@ -474,9 +474,9 @@
            COMPUTE CENT-SALDO-DST-USER = (MOV-SALDOPOS-ENT * 100)
                                          + MOV-SALDOPOS-DEC.
            ADD 1 TO LAST-MOV-NUM.
-      *    creamos los registros
+      *    creamos los registros PARA EL QUE TRANSFIERE
            MOVE LAST-MOV-NUM   TO MOV-NUM.
-           MOVE PROG-NUM       TO MOV-TARJETA.
+           MOVE PROG-TARJETA-O TO MOV-TARJETA.
            MOVE PROG-ANO       TO MOV-ANO.
            MOVE PROG-MES       TO MOV-MES.
            MOVE PROG-DIA       TO MOV-DIA.
@@ -487,12 +487,49 @@
            MULTIPLY -1 BY PROG-IMPORTE-ENT.
            MOVE PROG-IMPORTE-ENT TO MOV-IMPORTE-ENT.
            MULTIPLY -1 BY EURENT-USUARIO.
-           MOVE PROG-IMPORTE-DEC TO PROG-IMPORTE-DEC.
+           MOVE PROG-IMPORTE-DEC TO MOV-IMPORTE-DEC.
 
            MOVE "transf programada"       TO MOV-CONCEPTO.
 
            COMPUTE CENT-IMPRT-USER = (PROG-IMPORTE-ENT * 100)
                                          + PROG-IMPORTE-DEC.
+           SUBTRACT CENT-IMPRT-USER FROM CENT-SALDO-DST-USER
+
+           COMPUTE PROG-SALDOPOS-ENT = (CENT-SALDO-ORD-USER / 100).
+           MOVE FUNCTION MOD(CENT-SALDO-ORD-USER, 100)
+               TO PROG-SALDOPOS-ENT.
+           
+           WRITE MOVIMIENTO-REG INVALID KEY GO TO PSYS-ERR.
+
+           ADD 1 TO LAST-MOV-NUM.
+
+      *    creamos los registros PARA EL QUE RECIBE
+           MOVE LAST-MOV-NUM   TO MOV-NUM.
+           MOVE PROG-TARJETA-D TO MOV-TARJETA.
+           MOVE PROG-ANO       TO MOV-ANO.
+           MOVE PROG-MES       TO MOV-MES.
+           MOVE PROG-DIA       TO MOV-DIA.
+           MOVE 00             TO MOV-HOR.
+           MOVE 00             TO MOV-MIN.
+           MOVE 00             TO MOV-SEG.
+
+           MOVE PROG-IMPORTE-ENT TO MOV-IMPORTE-ENT.
+           MOVE PROG-IMPORTE-DEC TO PROG-IMPORTE-DEC.
+
+           MOVE "transferido programada"       TO MOV-CONCEPTO.
+
+           
+           ADD CENT-IMPRT-USER TO CENT-SALDO-DST-USER
+           COMPUTE 
+
+           COMPUTE PROG-SALDOPOS-ENT = (CENT-SALDO-ORD-USER / 100).
+           MOVE FUNCTION MOD(CENT-SALDO-ORD-USER, 100)
+               TO PROG-SALDOPOS-ENT.
+           
+           WRITE MOVIMIENTO-REG INVALID KEY GO TO PSYS-ERR.
+
+
+
 
            GO TO REALIZAR-FUTURAS2
            

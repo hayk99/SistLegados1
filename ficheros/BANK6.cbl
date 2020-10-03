@@ -411,7 +411,7 @@
            MOVE SEGUNDOS       TO MOV-SEG.
 
            
-      * Posible error 
+      
            MULTIPLY -1 BY EURENT-USUARIO.
            MOVE EURENT-USUARIO TO MOV-IMPORTE-ENT.
            MULTIPLY -1 BY EURENT-USUARIO.
