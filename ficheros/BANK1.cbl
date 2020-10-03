@@ -20,6 +20,12 @@
            RECORD KEY IS INUM
            FILE STATUS IS FSI.
 
+           SELECT F-MOVIMIENTOS ASSIGN TO DISK
+           ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC
+           RECORD KEY IS MOV-NUM
+           FILE STATUS IS FSM.
+
            SELECT F-PROGRAMADAS ASSIGN TO DISK
            ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC
@@ -59,11 +65,30 @@
            02 PROG-IMPORTE-DEC      PIC   9(2).
            02 PROG-CONCEPTO         PIC  X(35).
 
+       FD F-MOVIMIENTOS
+           LABEL RECORD STANDARD
+           VALUE OF FILE-ID IS "movimientos.ubd".
+       01 MOVIMIENTO-REG.
+           02 MOV-NUM              PIC  9(35).
+           02 MOV-TARJETA          PIC  9(16).
+           02 MOV-ANO              PIC   9(4).
+           02 MOV-MES              PIC   9(2).
+           02 MOV-DIA              PIC   9(2).
+           02 MOV-HOR              PIC   9(2).
+           02 MOV-MIN              PIC   9(2).
+           02 MOV-SEG              PIC   9(2).
+           02 MOV-IMPORTE-ENT      PIC  S9(7).
+           02 MOV-IMPORTE-DEC      PIC   9(2).
+           02 MOV-CONCEPTO         PIC  X(35).
+           02 MOV-SALDOPOS-ENT     PIC  S9(9).
+           02 MOV-SALDOPOS-DEC     PIC   9(2).
+
 
        WORKING-STORAGE SECTION.
        77 FST                      PIC  X(2).
        77 FSI                      PIC  X(2).
        77 FSA                      PIC  X(2).
+       77 FSM                      PIC  x(2).
 
        78 BLACK   VALUE 0.
        78 BLUE    VALUE 1.
@@ -113,6 +138,12 @@
        77 FECHA-ACTUAL                 PIC   9(8).
        77 FECHA-ANTIGUA                PIC   9(8).
 
+       77 F-ACTUAL               PIC  9(8).
+       77 F-PROG                 PIC  9(8).
+       77 F-ANTIGUO                 PIC  9(8).
+
+       77 DEL-PROG-NUM             PIC  9(35).
+
 
        SCREEN SECTION.
        01 BLANK-SCREEN.
@@ -155,7 +186,8 @@
 
 
        P1.
-      *     MOVE CAMPOS-FECHA TO CAMPOS-FECHA-ANTIGUO.
+           MOVE CAMPOS-FECHA TO CAMPOS-FECHA-ANTIGUO.
+           ADD 1 TO DIA.
            DISPLAY "Bienvenido a UnizarBank" LINE 8 COL 28.
            DISPLAY "Enter - Aceptar" LINE 24 COL 33.
 
@@ -304,9 +336,6 @@
                     BACKGROUND-COLOR IS RED.
            GO TO PSYS-ERR3.
 
-        PSYS-ERR3.
-             GO TO  PSYS-ERR3.
-
 
        PINT-ERR.
 
@@ -363,10 +392,10 @@
            IF ENTER-PRESSED
                GO TO P2
            ELSE
-               IF ESC-PRESSED
-                   GO TO IMPRIMIR-CABECERA
-               ELSE
-                   GO TO PPIN-ERR-ENTER.
+           IF ESC-PRESSED
+               GO TO IMPRIMIR-CABECERA
+           ELSE
+               GO TO PPIN-ERR-ENTER.
 
 
        REINICIAR-INTENTOS.
@@ -377,30 +406,108 @@
            OPEN I-O F-PROGRAMADAS.
            IF FSA <> 00
                GO TO PSYS-ERR.
-           GO TO REALIZAR-FUTURAS2.
 
        REALIZAR-FUTURAS2.
+           READ F-PROGRAMADAS NEXT RECORD AT END 
+               GO TO IMPRIMIR-CABECERA.
 
-           READ F-PROGRAMADAS INVALID KEY GO TO PSYS-ERR2.
+           COMPUTE F-PROG = (PROG-ANO*10000)+
+                           (PROG-MES*100) + PROG-DIA
+           COMPUTE F-ACTUAL = (ANO*10000) + 
+                           (MES*100) + DIA
+           COMPUTE F-ANTIGUO = (ANO-ANTIGUO*10000) + 
+                           (MES-ANTIGUO*100) + DIA-ANTIGUO
+           
+           DISPLAY "DIA PROGRAMADO" LINE 12 COL 10
+           DISPLAY "DIA ANTIGUO" LINE 13 COL 10
+           DISPLAY "DIA ACTUAL" LINE 14 COL 10
+           DISPLAY PROG-NUM LINE 11 COL 10
+           DISPLAY F-PROG LINE 12 COL 30
+           DISPLAY F-ANTIGUO LINE 13 COL 30
+           DISPLAY F-ACTUAL LINE 14 COL 30
 
+      *     IF DIA-PROG < DIA-ACTUAL
+      *        AQUI HAREMOS EL MOVIMIENTO
+      *        GO TO OPEN-MOVIMIENTOS
+      *     ELSE        
+      *     GO TO REALIZAR-FUTURAS2. descomentar para la logica orignal
+           
+           ACCEPT CHOICE LINE 24 COL 80 ON EXCEPTION
+           IF ESC-PRESSED
+               EXIT PROGRAM
+           ELSE
+               IF UP-ARROW-PRESSED
+                   GO TO REALIZAR-FUTURAS2
+               ELSE    
+                   EXIT PROGRAM.
+      *     DISPLAY BLANK-SCREEN
+      *     DISPLAY PROG-NUM LINE 12 COL 10.
+      *     DISPLAY PROG-TARJETA-O LINE 13 COL 10.
+      *     DISPLAY PROG-TARJETA-D LINE 14 COL 10.
+      *     DISPLAY PROG-ANO LINE 15 COL 10.
+      *     DISPLAY PROG-MES LINE 16 COL 10.
+      *     DISPLAY PROG-DIA LINE 17 COL 10.
+      *     DISPLAY PROG-IMPORTE-DEC LINE 18 COL 10.
+      *     DISPLAY PROG-IMPORTE-ENT LINE 19 COL 10.
+      *     DISPLAY PROG-CONCEPTO LINE 20 COL 10.
 
+       OPEN-MOVIMIENTOS
+      *    anbrimos ficheor de movimiento
+           OPEN I-O F-MOVIMIENTOS.
+           IF FSM <> 00 THEN
+               GO TO PSYS-ERR
+           END-IF.
+           MOVE 0 TO LAST-MOV-NUM.
 
-           DISPLAY PROG-NUM LINE 12 COL 10.
+       LECTURA-MOVIMIENTOS.
+      *    leemos hasta el ultimo movimiento
+           READ F-MOVIMIENTOS NEXT RECORD AT END 
+               GO TO REGISTAR-MOVIMIENTO.
 
-           GO TO ESCRIBIR-REG.
+           IF MOV-NUM > LAST-MOV-NUM
+               MOVE MOV-NUM TO LAST-MOV-NUM.
 
-       ESCRIBIR-REG.
-          DISPLAY PROG-NUM LINE 12 COL 10.
-          DISPLAY PROG-TARJETA-O LINE 13 COL 10.
-          DISPLAY PROG-TARJETA-D LINE 14 COL 10.
-          DISPLAY PROG-ANO LINE 15 COL 10.
-          DISPLAY PROG-MES LINE 16 COL 10.
-          DISPLAY PROG-DIA LINE 17 COL 10.
-          DISPLAY PROG-IMPORTE-DEC LINE 18 COL 10.
-          DISPLAY PROG-IMPORTE-ENT LINE 19 COL 10.
-          DISPLAY PROG-CONCEPTO LINE 20 COL 10.
+           GO TO LECTURA-MOVIMIENTOS.
 
-          CLOSE F-PROGRAMADAS.
+       REGISTAR-MOVIMIENTO.
+      *    calculo del saldo del usuario
+           COMPUTE CENT-SALDO-DST-USER = (MOV-SALDOPOS-ENT * 100)
+                                         + MOV-SALDOPOS-DEC.
+           ADD 1 TO LAST-MOV-NUM.
+      *    creamos los registros
+           MOVE LAST-MOV-NUM   TO MOV-NUM.
+           MOVE PROG-NUM       TO MOV-TARJETA.
+           MOVE PROG-ANO       TO MOV-ANO.
+           MOVE PROG-MES       TO MOV-MES.
+           MOVE PROG-DIA       TO MOV-DIA.
+           MOVE 00             TO MOV-HOR.
+           MOVE 00             TO MOV-MIN.
+           MOVE 00             TO MOV-SEG.
 
+           MULTIPLY -1 BY PROG-IMPORTE-ENT.
+           MOVE PROG-IMPORTE-ENT TO MOV-IMPORTE-ENT.
+           MULTIPLY -1 BY EURENT-USUARIO.
+           MOVE PROG-IMPORTE-DEC TO PROG-IMPORTE-DEC.
+
+           MOVE "transf programada"       TO MOV-CONCEPTO.
+
+           COMPUTE CENT-IMPRT-USER = (PROG-IMPORTE-ENT * 100)
+                                         + PROG-IMPORTE-DEC.
+
+           GO TO REALIZAR-FUTURAS2
            
 
+       PSYS-ERR3.
+           CLOSE F-PROGRAMADAS.
+
+           CLOSE TARJETAS.
+           CLOSE INTENTOS.
+
+           PERFORM IMPRIMIR-CABECERA THRU IMPRIMIR-CABECERA.
+           DISPLAY "ERROR EN MOVIMIENTO" LINE 9 COL 25
+               WITH FOREGROUND-COLOR IS BLACK
+                    BACKGROUND-COLOR IS RED.
+           DISPLAY PROG-NUM LINE 10 COL 25
+               WITH FOREGROUND-COLOR IS BLACK
+                    BACKGROUND-COLOR IS RED.
+           GO TO PINT-ERR-ENTER.
