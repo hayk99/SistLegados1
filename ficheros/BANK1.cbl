@@ -142,7 +142,17 @@
        77 F-PROG                 PIC  9(8).
        77 F-ANTIGUO                 PIC  9(8).
 
-       77 DEL-PROG-NUM             PIC  9(35).
+       77 LAST-MOV-NUM             PIC  9(35).
+       
+       77 MOV-ULT                  PIC  9(35).
+       77 SALDO-O-ENT              PIC  S9(9).
+       77 SALDO-O-DEC              PIC   9(2).
+       
+       77 SALDO-D-ENT              PIC  S9(9).
+       77 SALDO-D-DEC              PIC   9(2).
+
+       77 CENT-IMPORTE-TRAS        PIC  S9(9).
+       77 SALDO-ORIGEN             PIC  S9(9).
 
 
        SCREEN SECTION.
@@ -166,6 +176,7 @@
            SET ENVIRONMENT 'COB_SCREEN_ESC'        TO 'Y'
 
            DISPLAY BLANK-SCREEN.
+
 
            DISPLAY  "Cajero Automatico UnizarBank" LINE 2 COL 26
                WITH FOREGROUND-COLOR IS CYAN.
@@ -303,7 +314,9 @@
 
 
        PSYS-ERR.
-           CLOSE F-PROGRAMADAS.
+      *     CLOSE F-PROGRAMADAS.
+
+           CLOSE F-MOVIMIENTOS.
            CLOSE TARJETAS.
            CLOSE INTENTOS.
 
@@ -315,10 +328,14 @@
                WITH FOREGROUND-COLOR IS BLACK
                     BACKGROUND-COLOR IS RED.
            DISPLAY "Enter - Aceptar" LINE 24 COL 33.
+           DISPLAY "FICHERO MOV" LINE 13 COL 33.
+           DISPLAY FSM LINE 13 COL 50.
+           DISPLAY "FICHERO PROG" LINE 14 COL 33.
+           DISPLAY FSA LINE 14 COL 50.
            GO TO PINT-ERR-ENTER.
 
        PSYS-ERR2.
-           CLOSE F-PROGRAMADAS.
+      *     CLOSE F-PROGRAMADAS.
 
            CLOSE TARJETAS.
            CLOSE INTENTOS.
@@ -403,6 +420,18 @@
            REWRITE INTENTOSREG INVALID KEY GO TO PSYS-ERR.
 
        REALIZAR-FUTURAS.
+           INITIALIZE F-ACTUAL.
+           INITIALIZE F-PROG.
+           INITIALIZE F-ANTIGUO.
+           INITIALIZE LAST-MOV-NUM.
+           INITIALIZE MOV-ULT.
+           INITIALIZE SALDO-O-ENT.
+           INITIALIZE SALDO-O-DEC.
+           INITIALIZE SALDO-D-ENT.
+           INITIALIZE SALDO-D-DEC.
+           INITIALIZE CENT-IMPORTE-TRAS.
+           INITIALIZE SALDO-ORIGEN.
+
            OPEN I-O F-PROGRAMADAS.
            IF FSA <> 00
                GO TO PSYS-ERR.
@@ -410,7 +439,7 @@
        REALIZAR-FUTURAS2.
            READ F-PROGRAMADAS NEXT RECORD AT END 
                GO TO IMPRIMIR-CABECERA.
-
+           ADD 4 TO DIA.
            COMPUTE F-PROG = (PROG-ANO*10000)+
                            (PROG-MES*100) + PROG-DIA
            COMPUTE F-ACTUAL = (ANO*10000) + 
@@ -426,39 +455,34 @@
            DISPLAY F-ANTIGUO LINE 13 COL 30
            DISPLAY F-ACTUAL LINE 14 COL 30
 
-      *     IF DIA-PROG < DIA-ACTUAL
-      *        AQUI HAREMOS EL MOVIMIENTO
-      *        GO TO OPEN-MOVIMIENTOS
-      *     ELSE        
-      *     GO TO REALIZAR-FUTURAS2. descomentar para la logica orignal
-           
-           ACCEPT CHOICE LINE 24 COL 80 ON EXCEPTION
-           IF ESC-PRESSED
-               EXIT PROGRAM
-           ELSE
-               IF UP-ARROW-PRESSED
+           IF F-PROG <= F-ACTUAL
+               IF F-PROG > F-ANTIGUO
+                   GO TO OPEN-MOVIMIENTOS
+               ELSE        
                    GO TO REALIZAR-FUTURAS2
-               ELSE    
-                   EXIT PROGRAM.
-      *     DISPLAY BLANK-SCREEN
-      *     DISPLAY PROG-NUM LINE 12 COL 10.
-      *     DISPLAY PROG-TARJETA-O LINE 13 COL 10.
-      *     DISPLAY PROG-TARJETA-D LINE 14 COL 10.
-      *     DISPLAY PROG-ANO LINE 15 COL 10.
-      *     DISPLAY PROG-MES LINE 16 COL 10.
-      *     DISPLAY PROG-DIA LINE 17 COL 10.
-      *     DISPLAY PROG-IMPORTE-DEC LINE 18 COL 10.
-      *     DISPLAY PROG-IMPORTE-ENT LINE 19 COL 10.
-      *     DISPLAY PROG-CONCEPTO LINE 20 COL 10.
+               END-IF
+           ELSE
+               GO TO REALIZAR-FUTURAS2
+           END-IF.
+           
+      *     ACCEPT CHOICE LINE 24 COL 80 ON EXCEPTION
+      *     IF ESC-PRESSED
+      *         EXIT PROGRAM
+      *     ELSE
+      *         IF UP-ARROW-PRESSED
+      *             GO TO REALIZAR-FUTURAS2
+      *         ELSE    
+      *             EXIT PROGRAM.
 
-       OPEN-MOVIMIENTOS
-      *    anbrimos ficheor de movimiento
+       OPEN-MOVIMIENTOS.
+      *    abrimos fichero de movimiento
            OPEN I-O F-MOVIMIENTOS.
            IF FSM <> 00 THEN
                GO TO PSYS-ERR
            END-IF.
            MOVE 0 TO LAST-MOV-NUM.
 
+      
        LECTURA-MOVIMIENTOS.
       *    leemos hasta el ultimo movimiento
            READ F-MOVIMIENTOS NEXT RECORD AT END 
@@ -469,11 +493,36 @@
 
            GO TO LECTURA-MOVIMIENTOS.
 
-       REGISTAR-MOVIMIENTO.
-      *    calculo del saldo del usuario buscando en el fichero
-           SALDO-O-ENT
-           SALDO-O-DEC
-           
+       
+      *    Busco ultimo movimiento de la tarjeta ORIGEN y me duardo 
+      *    su saldo  
+       SALDO-CUENTA-O.
+           READ F-MOVIMIENTOS NEXT RECORD AT END GO TO SALDO-CUENTA-D.
+           IF PROG-TARJETA-O = TNUM THEN
+               IF MOV-ULT < MOV-NUM THEN
+                   MOVE MOV-NUM TO MOV-ULT
+               END-IF
+           END-IF.
+           MOVE MOV-SALDOPOS-ENT TO SALDO-O-ENT.
+           MOVE MOV-SALDOPOS-DEC TO SALDO-O-DEC.
+           GO TO SALDO-CUENTA-O.
+       
+       SALDO-CUENTA-D.
+      *    Busco ultimo movimiento de la tarjeta DESTINO y me duardo 
+      *    su saldo  
+           MOVE 0 TO MOV-ULT
+           READ F-MOVIMIENTOS NEXT RECORD AT END 
+               GO TO REGISTAR-MOVIMIENTO.
+           IF PROG-TARJETA-D = TNUM THEN
+               IF MOV-ULT < MOV-NUM THEN
+                   MOVE MOV-NUM TO MOV-ULT
+               END-IF
+           END-IF.
+           MOVE MOV-SALDOPOS-ENT TO SALDO-D-ENT.
+           MOVE MOV-SALDOPOS-DEC TO SALDO-D-DEC.
+           GO TO SALDO-CUENTA-D.
+
+       REGISTAR-MOVIMIENTO.         
 
            ADD 1 TO LAST-MOV-NUM.
       *    creamos los registros PARA EL QUE TRANSFIERE
@@ -488,21 +537,22 @@
 
            MULTIPLY -1 BY PROG-IMPORTE-ENT.
            MOVE PROG-IMPORTE-ENT TO MOV-IMPORTE-ENT.
-           MULTIPLY -1 BY EURENT-USUARIO.
+           MULTIPLY -1 BY PROG-IMPORTE-DEC.
            MOVE PROG-IMPORTE-DEC TO MOV-IMPORTE-DEC.
 
-           MOVE "transf programada"       TO MOV-CONCEPTO.
+           MOVE "transfiero programada"       TO MOV-CONCEPTO.
 
       *    CANTIDAD A TRANSFERIR     
-           COMPUTE CENT-IMPORTE-TRASNF = (PROG-IMPORTE-ENT * 100)
+           COMPUTE CENT-IMPORTE-TRAS = (PROG-IMPORTE-ENT * 100)
                                          + PROG-IMPORTE-DEC.
            COMPUTE SALDO-ORIGEN = (SALDO-O-ENT * 100)
                                          + SALDO-O-DEC.
-           SUBTRACT CENT-IMPORT-TRASNF FROM SALDO-ORIGEN.
+           SUBTRACT CENT-IMPORTE-TRAS FROM SALDO-ORIGEN.
 
            COMPUTE MOV-SALDOPOS-ENT = (SALDO-ORIGEN / 100).
+
            MOVE FUNCTION MOD(SALDO-ORIGEN, 100)
-               TO MOV-SALDOPOS-ENT.
+               TO MOV-SALDOPOS-DEC.
            
            WRITE MOVIMIENTO-REG INVALID KEY GO TO PSYS-ERR.
 
@@ -523,19 +573,16 @@
 
            MOVE "nos transfieren programada"       TO MOV-CONCEPTO.
 
-      *    calculo del saldo del usuario buscando en el fichero
-           SALDO-D-ENT
-           SALDO-D-DEC
            
            ADD PROG-IMPORTE-ENT TO SALDO-D-ENT.
-           ADD PROG-IMPORTE-DEC TO SALGO-D-DEC.
+           ADD PROG-IMPORTE-DEC TO SALDO-D-DEC.
            
            MOVE SALDO-D-ENT TO MOV-SALDOPOS-ENT.
            MOVE SALDO-D-DEC TO MOV-SALDOPOS-DEC.
 
            WRITE MOVIMIENTO-REG INVALID KEY GO TO PSYS-ERR.
            
-           GO TO REALIZAR-FUTURAS2
+           GO TO REALIZAR-FUTURAS2.
            
 
        PSYS-ERR3.
@@ -551,4 +598,8 @@
            DISPLAY PROG-NUM LINE 10 COL 25
                WITH FOREGROUND-COLOR IS BLACK
                     BACKGROUND-COLOR IS RED.
-           GO TO PINT-ERR-ENTER.
+           GO TO PSYS-ERR3.
+
+       BUCLE.
+           DISPLAY "BUCLE " LINE 10 COL 20.
+           GO TO BUCLE.
