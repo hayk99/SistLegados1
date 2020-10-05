@@ -153,6 +153,7 @@
 
        77 CENT-IMPORTE-TRAS        PIC  S9(9).
        77 SALDO-ORIGEN             PIC  S9(9).
+       77 ADDDIAS                  PIC   9(1).
 
 
        SCREEN SECTION.
@@ -170,6 +171,9 @@
 
 
        PROCEDURE DIVISION.
+       CACA.
+           MOVE 1 TO ADDDIAS.
+
        IMPRIMIR-CABECERA.
 
            SET ENVIRONMENT 'COB_SCREEN_EXCEPTIONS' TO 'Y'
@@ -185,7 +189,6 @@
            MOVE FUNCTION CURRENT-DATE TO CAMPOS-FECHA.
 
 
-
            DISPLAY DIA LINE 4 COL 32. 
            DISPLAY "-" LINE 4 COL 34.
            DISPLAY MES LINE 4 COL 35.
@@ -198,7 +201,7 @@
 
        P1.
            MOVE CAMPOS-FECHA TO CAMPOS-FECHA-ANTIGUO.
-           ADD 1 TO DIA.
+           ADD ADDDIAS TO DIA.
            DISPLAY "Bienvenido a UnizarBank" LINE 8 COL 28.
            DISPLAY "Enter - Aceptar" LINE 24 COL 33.
 
@@ -314,7 +317,7 @@
 
 
        PSYS-ERR.
-      *     CLOSE F-PROGRAMADAS.
+           CLOSE F-PROGRAMADAS.
 
            CLOSE F-MOVIMIENTOS.
            CLOSE TARJETAS.
@@ -336,7 +339,8 @@
 
        PSYS-ERR2.
       *     CLOSE F-PROGRAMADAS.
-
+           
+           
            CLOSE TARJETAS.
            CLOSE INTENTOS.
 
@@ -348,10 +352,11 @@
                WITH FOREGROUND-COLOR IS BLACK
                     BACKGROUND-COLOR IS RED.
            DISPLAY "Enter - Aceptar" LINE 24 COL 33.
-           DISPLAY PROG-NUM LINE 7 COL 10
+           DISPLAY FSM LINE 7 COL 10
                WITH FOREGROUND-COLOR IS BLACK
                     BACKGROUND-COLOR IS RED.
-           GO TO PSYS-ERR3.
+           CLOSE F-MOVIMIENTOS.
+           GO TO PINT-ERR-ENTER.
 
 
        PINT-ERR.
@@ -420,6 +425,7 @@
            REWRITE INTENTOSREG INVALID KEY GO TO PSYS-ERR.
 
        REALIZAR-FUTURAS.
+           MOVE 0 TO ADDDIAS.
            INITIALIZE F-ACTUAL.
            INITIALIZE F-PROG.
            INITIALIZE F-ANTIGUO.
@@ -432,9 +438,10 @@
            INITIALIZE CENT-IMPORTE-TRAS.
            INITIALIZE SALDO-ORIGEN.
 
+           CLOSE F-PROGRAMADAS.
            OPEN I-O F-PROGRAMADAS.
            IF FSA <> 00
-               GO TO PSYS-ERR.
+               GO TO PSYS-ERR2.
 
        REALIZAR-FUTURAS2.
            READ F-PROGRAMADAS NEXT RECORD AT END 
@@ -476,6 +483,7 @@
 
        OPEN-MOVIMIENTOS.
       *    abrimos fichero de movimiento
+           CLOSE F-MOVIMIENTOS.
            OPEN I-O F-MOVIMIENTOS.
            IF FSM <> 00 THEN
                GO TO PSYS-ERR
@@ -486,20 +494,29 @@
        LECTURA-MOVIMIENTOS.
       *    leemos hasta el ultimo movimiento
            READ F-MOVIMIENTOS NEXT RECORD AT END 
-               GO TO REGISTAR-MOVIMIENTO.
+               GO TO LECTURA-SALDO-O.
 
            IF MOV-NUM > LAST-MOV-NUM
                MOVE MOV-NUM TO LAST-MOV-NUM.
 
            GO TO LECTURA-MOVIMIENTOS.
-
+          
        
       *    Busco ultimo movimiento de la tarjeta ORIGEN y me duardo 
       *    su saldo  
+
+       LECTURA-SALDO-O.
+           CLOSE F-MOVIMIENTOS.
+           OPEN I-O F-MOVIMIENTOS.
+               IF FSM <> 00 THEN
+                   GO TO PSYS-ERR
+               END-IF.
+
        SALDO-CUENTA-O.
-           READ F-MOVIMIENTOS NEXT RECORD AT END GO TO SALDO-CUENTA-D.
+           READ F-MOVIMIENTOS NEXT RECORD AT END GO TO LECTURA-SALDO-D.
            IF PROG-TARJETA-O = TNUM THEN
                IF MOV-ULT < MOV-NUM THEN
+                   DISPLAY MOV-NUM LINE 22 COL 40
                    MOVE MOV-NUM TO MOV-ULT
                END-IF
            END-IF.
@@ -507,10 +524,17 @@
            MOVE MOV-SALDOPOS-DEC TO SALDO-O-DEC.
            GO TO SALDO-CUENTA-O.
        
-       SALDO-CUENTA-D.
+       LECTURA-SALDO-D.
+           CLOSE F-MOVIMIENTOS.
+           OPEN I-O F-MOVIMIENTOS.
+               IF FSM <> 00 THEN
+                   GO TO PSYS-ERR
+               END-IF.
+           MOVE 0 TO MOV-ULT.
+       
       *    Busco ultimo movimiento de la tarjeta DESTINO y me duardo 
       *    su saldo  
-           MOVE 0 TO MOV-ULT
+       SALDO-CUENTA-D.
            READ F-MOVIMIENTOS NEXT RECORD AT END 
                GO TO REGISTAR-MOVIMIENTO.
            IF PROG-TARJETA-D = TNUM THEN
@@ -520,6 +544,7 @@
            END-IF.
            MOVE MOV-SALDOPOS-ENT TO SALDO-D-ENT.
            MOVE MOV-SALDOPOS-DEC TO SALDO-D-DEC.
+           DISPLAY "MONGOLO" LINE 1 COL 40.
            GO TO SALDO-CUENTA-D.
 
        REGISTAR-MOVIMIENTO.         
@@ -583,7 +608,19 @@
            WRITE MOVIMIENTO-REG INVALID KEY GO TO PSYS-ERR.
            
            GO TO REALIZAR-FUTURAS2.
-           
+
+       BUCLE.
+           CLOSE F-MOVIMIENTOS.
+           CLOSE F-PROGRAMADAS.
+           DISPLAY BLANK-SCREEN.
+           DISPLAY "BUCLE " LINE 10 COL 20.
+
+           ACCEPT CHOICE LINE 24 COL 80 ON EXCEPTION
+           IF ENTER-PRESSED
+               GO TO BUCLE
+           ELSE
+               GO TO BUCLE
+           END-IF. 
 
        PSYS-ERR3.
            CLOSE F-PROGRAMADAS.
@@ -600,6 +637,4 @@
                     BACKGROUND-COLOR IS RED.
            GO TO PSYS-ERR3.
 
-       BUCLE.
-           DISPLAY "BUCLE " LINE 10 COL 20.
-           GO TO BUCLE.
+       
