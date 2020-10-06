@@ -338,7 +338,7 @@
            IF ESC-PRESSED THEN
                EXIT PROGRAM
            ELSE
-               GO TO ENTER-VERIFICACION
+               GO TO VERIFICACION-CTA-CORRECTA
            END-IF.
 
        VERIFICACION-CTA-CORRECTA.
@@ -369,9 +369,8 @@
            CLOSE F-MOVIMIENTOS.
            MOVE LAST-USER-DST-MOV-NUM TO MOV-NUM.
            PERFORM MOVIMIENTOS-OPEN THRU MOVIMIENTOS-OPEN.
-           READ F-MOVIMIENTOS INVALID KEY 
+           READ F-MOVIMIENTOS INVALID KEY GO TO PSYS-ERR.
            DISPLAY "Error verif GUARDAR-TRF" LINE 24 COL 10
-           GO PSYS-ERR.
 
            COMPUTE CENT-SALDO-DST-USER = (MOV-SALDOPOS-ENT * 100)
                                          + MOV-SALDOPOS-DEC.
@@ -393,13 +392,12 @@
                        MOVE DIA            TO DIA1-USUARIO.
 
       * Caso de transferencia futura que hay que programar
-           IF (ANO*10000+MES*100+DIA) < 
-                (ANO1-USUARIO*10000+MES1-USUARIO*100+DIA1-USUARIO)
-                  OPEN I-O F-PROGRAMADAS.
-                   IF FSP <> 00
-                      GO TO PSYS-ERR2.
-                  GO TO ESCRITURA-PROGRAMADAS.
-
+           COMPUTE FECHA-ACTUAL = (ANO*10000 + MES*100 + DIA).
+           COMPUTE FECHA-INDICADA = (ANO1-USUARIO*10000 +
+                       MES1-USUARIO*100 +
+                       DIA1-USUARIO)
+           IF FECHA-ACTUAL < FECHA-INDICADA THEN                
+               GO TO OPEN-PROGRAMADAS.
       
            MOVE LAST-MOV-NUM   TO MOV-NUM.
            MOVE TNUM           TO MOV-TARJETA.
@@ -464,11 +462,12 @@
        P-PROG-EXITO.
            PERFORM IMPRIMIR-CABECERA THRU IMPRIMIR-CABECERA.
            DISPLAY "Transferencia programada correctamente para el dia "
-            LINE 11 COL 19
-           DISPLAY "  /  /    " LINE 11 COL 70
-           DISPLAY DIA1-USUARIO LINE 11 COL 70
-           DISPLAY MES1-USUARIO LINE 11 COL 73
-           DISPLAY ANO1-USUARIO LINE 11 COL 76
+            LINE 11 COL 10
+           DISPLAY "  /  /    " LINE 12 COL 20
+           DISPLAY DIA1-USUARIO LINE 12 COL 20
+           DISPLAY MES1-USUARIO LINE 12 COL 23
+           DISPLAY ANO1-USUARIO LINE 12 COL 26
+           DISPLAY LAST-PROG-NUM LINE 15 COL 10
            
            GO TO EXIT-ENTER.
 
@@ -486,19 +485,47 @@
                     BACKGROUND-COLOR IS RED.
            DISPLAY "Enter - Aceptar" LINE 24 COL 33.
 
-           PSYS-ERR2.
+           GO TO EXIT-ENTER.
+
+       PSYS-ERR3.
            CLOSE TARJETAS.
            CLOSE F-MOVIMIENTOS.
-           CLOSE F-PROGRAMADAS.
+           
 
            PERFORM IMPRIMIR-CABECERA THRU IMPRIMIR-CABECERA.
-           DISPLAY "Ha ocurrido un error interno22222222" LINE 09 COL 25
+           DISPLAY "Ha ocurrido un error interno 3" LINE 09 COL 25
                WITH FOREGROUND-COLOR IS BLACK
                     BACKGROUND-COLOR IS RED.
            DISPLAY "Vuelva mas tarde" LINE 11 COL 32
                WITH FOREGROUND-COLOR IS BLACK
                     BACKGROUND-COLOR IS RED.
            DISPLAY "Enter - Aceptar" LINE 24 COL 33.
+           DISPLAY FSP LINE 12 COL 40
+               WITH FOREGROUND-COLOR IS BLACK
+                    BACKGROUND-COLOR IS WHITE.
+           CLOSE F-PROGRAMADAS.
+
+           GO TO EXIT-ENTER.
+
+       PSYS-ERR2.
+           CLOSE TARJETAS.
+           CLOSE F-MOVIMIENTOS.
+           
+
+           PERFORM IMPRIMIR-CABECERA THRU IMPRIMIR-CABECERA.
+           DISPLAY "Ha ocurrido un error interno 2" LINE 09 COL 25
+               WITH FOREGROUND-COLOR IS BLACK
+                    BACKGROUND-COLOR IS RED.
+           DISPLAY "Vuelva mas tarde" LINE 11 COL 32
+               WITH FOREGROUND-COLOR IS BLACK
+                    BACKGROUND-COLOR IS RED.
+           DISPLAY "Enter - Aceptar" LINE 24 COL 33.
+           DISPLAY FSP LINE 12 COL 40
+               WITH FOREGROUND-COLOR IS BLACK
+                    BACKGROUND-COLOR IS WHITE.
+           CLOSE F-PROGRAMADAS.
+
+           GO TO EXIT-ENTER.
 
 
        EXIT-ENTER.
@@ -517,12 +544,18 @@
            DISPLAY "Enter - Salir" LINE 24 COL 33.
            GO TO EXIT-ENTER.
 
+       OPEN-PROGRAMADAS.
+           OPEN I-O F-PROGRAMADAS.
+           IF FSP <> 00
+               GO TO PSYS-ERR3.
+
        ESCRITURA-PROGRAMADAS.
            READ F-PROGRAMADAS NEXT RECORD AT END 
                   GO TO ESCRITURA-PROGRAMADAS2.
            IF LAST-PROG-NUM < PROG-NUM THEN
                MOVE PROG-NUM TO LAST-PROG-NUM
            END-IF.
+           DISPLAY LAST-PROG-NUM LINE 1 COL 20.
            GO TO ESCRITURA-PROGRAMADAS.
 
        ESCRITURA-PROGRAMADAS2.
@@ -544,7 +577,7 @@
            MOVE DIA1-USUARIO   TO PROG-DIA.
            MOVE EURENT-USUARIO TO PROG-IMPORTE-ENT.
            MOVE EURDEC-USUARIO TO PROG-IMPORTE-DEC.
-           MOVE MSJ-DST        TO PROG-CONCEPTO.
+           MOVE "PROGRAMADO"   TO PROG-CONCEPTO.
 
            WRITE PROGRAMADAS-REG INVALID KEY GO TO PSYS-ERR.
            CLOSE F-PROGRAMADAS.

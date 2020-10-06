@@ -172,7 +172,7 @@
 
        PROCEDURE DIVISION.
        CACA.
-           MOVE 1 TO ADDDIAS.
+           MOVE 2 TO ADDDIAS.
 
        IMPRIMIR-CABECERA.
 
@@ -472,14 +472,14 @@
                GO TO REALIZAR-FUTURAS2
            END-IF.
            
-      *     ACCEPT CHOICE LINE 24 COL 80 ON EXCEPTION
-      *     IF ESC-PRESSED
-      *         EXIT PROGRAM
-      *     ELSE
-      *         IF UP-ARROW-PRESSED
-      *             GO TO REALIZAR-FUTURAS2
-      *         ELSE    
-      *             EXIT PROGRAM.
+           ACCEPT CHOICE LINE 24 COL 80 ON EXCEPTION
+           IF ESC-PRESSED
+              EXIT PROGRAM
+           ELSE
+               IF UP-ARROW-PRESSED
+                   GO TO REALIZAR-FUTURAS2
+               ELSE    
+                   EXIT PROGRAM.
 
        OPEN-MOVIMIENTOS.
       *    abrimos fichero de movimiento
