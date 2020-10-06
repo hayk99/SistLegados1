@@ -61,7 +61,7 @@
            02 PROG-ANO              PIC   9(4).
            02 PROG-MES              PIC   9(2).
            02 PROG-DIA              PIC   9(2).
-           02 PROG-IMPORTE-ENT      PIC   9(7).
+           02 PROG-IMPORTE-ENT      PIC  S9(7).
            02 PROG-IMPORTE-DEC      PIC   9(2).
            02 PROG-CONCEPTO         PIC  X(35).
 
@@ -154,6 +154,7 @@
        77 CENT-IMPORTE-TRAS        PIC  S9(9).
        77 SALDO-ORIGEN             PIC  S9(9).
        77 ADDDIAS                  PIC   9(1).
+       77 SALDO-DESTINO            PIC  S9(9).
 
 
        SCREEN SECTION.
@@ -437,6 +438,7 @@
            INITIALIZE SALDO-D-DEC.
            INITIALIZE CENT-IMPORTE-TRAS.
            INITIALIZE SALDO-ORIGEN.
+           INITIALIZE SALDO-DESTINO.
 
            CLOSE F-PROGRAMADAS.
            OPEN I-O F-PROGRAMADAS.
@@ -514,14 +516,15 @@
 
        SALDO-CUENTA-O.
            READ F-MOVIMIENTOS NEXT RECORD AT END GO TO LECTURA-SALDO-D.
-           IF PROG-TARJETA-O = TNUM THEN
+           IF PROG-TARJETA-O = MOV-TARJETA THEN
                IF MOV-ULT < MOV-NUM THEN
-                   DISPLAY MOV-NUM LINE 22 COL 40
                    MOVE MOV-NUM TO MOV-ULT
+                   MOVE MOV-SALDOPOS-ENT TO SALDO-O-ENT
+                   MOVE MOV-SALDOPOS-DEC TO SALDO-O-DEC
+                   COMPUTE SALDO-ORIGEN = (SALDO-O-ENT * 100
+                                         + SALDO-O-DEC)
                END-IF
            END-IF.
-           MOVE MOV-SALDOPOS-ENT TO SALDO-O-ENT.
-           MOVE MOV-SALDOPOS-DEC TO SALDO-O-DEC.
            GO TO SALDO-CUENTA-O.
        
        LECTURA-SALDO-D.
@@ -537,18 +540,18 @@
        SALDO-CUENTA-D.
            READ F-MOVIMIENTOS NEXT RECORD AT END 
                GO TO REGISTAR-MOVIMIENTO.
-           IF PROG-TARJETA-D = TNUM THEN
+           IF PROG-TARJETA-D = MOV-TARJETA THEN
                IF MOV-ULT < MOV-NUM THEN
                    MOVE MOV-NUM TO MOV-ULT
+                   MOVE MOV-SALDOPOS-ENT TO SALDO-D-ENT
+                   MOVE MOV-SALDOPOS-DEC TO SALDO-D-DEC
+                   COMPUTE SALDO-DESTINO = (SALDO-D-ENT * 100
+                                         + SALDO-D-DEC)
                END-IF
            END-IF.
-           MOVE MOV-SALDOPOS-ENT TO SALDO-D-ENT.
-           MOVE MOV-SALDOPOS-DEC TO SALDO-D-DEC.
-           DISPLAY "MONGOLO" LINE 1 COL 40.
            GO TO SALDO-CUENTA-D.
 
        REGISTAR-MOVIMIENTO.         
-
            ADD 1 TO LAST-MOV-NUM.
       *    creamos los registros PARA EL QUE TRANSFIERE
            MOVE LAST-MOV-NUM   TO MOV-NUM.
@@ -560,24 +563,22 @@
            MOVE 00             TO MOV-MIN.
            MOVE 00             TO MOV-SEG.
 
+           COMPUTE CENT-IMPORTE-TRAS = (PROG-IMPORTE-ENT * 100)
+                                         + PROG-IMPORTE-DEC.
+
+           MOVE "transfiero programada"       TO MOV-CONCEPTO.
+
+      *    CANTIDAD A TRANSFERIR     
+           SUBTRACT CENT-IMPORTE-TRAS FROM SALDO-ORIGEN.
+
            MULTIPLY -1 BY PROG-IMPORTE-ENT.
            MOVE PROG-IMPORTE-ENT TO MOV-IMPORTE-ENT.
            MULTIPLY -1 BY PROG-IMPORTE-DEC.
            MOVE PROG-IMPORTE-DEC TO MOV-IMPORTE-DEC.
 
-           MOVE "transfiero programada"       TO MOV-CONCEPTO.
-
-      *    CANTIDAD A TRANSFERIR     
-           COMPUTE CENT-IMPORTE-TRAS = (PROG-IMPORTE-ENT * 100)
-                                         + PROG-IMPORTE-DEC.
-           COMPUTE SALDO-ORIGEN = (SALDO-O-ENT * 100)
-                                         + SALDO-O-DEC.
-           SUBTRACT CENT-IMPORTE-TRAS FROM SALDO-ORIGEN.
-
            COMPUTE MOV-SALDOPOS-ENT = (SALDO-ORIGEN / 100).
-
            MOVE FUNCTION MOD(SALDO-ORIGEN, 100)
-               TO MOV-SALDOPOS-DEC.
+               TO MOV-SALDOPOS-DEC.           
            
            WRITE MOVIMIENTO-REG INVALID KEY GO TO PSYS-ERR.
 
@@ -592,35 +593,29 @@
            MOVE 00             TO MOV-HOR.
            MOVE 00             TO MOV-MIN.
            MOVE 00             TO MOV-SEG.
-
+           
+           COMPUTE CENT-IMPORTE-TRAS = (PROG-IMPORTE-ENT * 100)
+                                         + PROG-IMPORTE-DEC.
+      *    VUELVO A HACERLO POSITIVO 
+           MULTIPLY -1 BY PROG-IMPORTE-ENT.
            MOVE PROG-IMPORTE-ENT TO MOV-IMPORTE-ENT.
+           MULTIPLY -1 BY PROG-IMPORTE-DEC.
            MOVE PROG-IMPORTE-DEC TO MOV-IMPORTE-DEC.
+       
+           
+           SUBTRACT CENT-IMPORTE-TRAS FROM SALDO-DESTINO.
+
+           COMPUTE MOV-SALDOPOS-ENT = (SALDO-DESTINO / 100).
+           MOVE FUNCTION MOD(SALDO-DESTINO, 100)
+               TO MOV-SALDOPOS-DEC.    
 
            MOVE "nos transfieren programada"       TO MOV-CONCEPTO.
 
-           
-           ADD PROG-IMPORTE-ENT TO SALDO-D-ENT.
-           ADD PROG-IMPORTE-DEC TO SALDO-D-DEC.
-           
-           MOVE SALDO-D-ENT TO MOV-SALDOPOS-ENT.
-           MOVE SALDO-D-DEC TO MOV-SALDOPOS-DEC.
-
            WRITE MOVIMIENTO-REG INVALID KEY GO TO PSYS-ERR.
            
+           DELETE F-PROGRAMADAS RECORD INVALID KEY GO TO PSYS-ERR.
+
            GO TO REALIZAR-FUTURAS2.
-
-       BUCLE.
-           CLOSE F-MOVIMIENTOS.
-           CLOSE F-PROGRAMADAS.
-           DISPLAY BLANK-SCREEN.
-           DISPLAY "BUCLE " LINE 10 COL 20.
-
-           ACCEPT CHOICE LINE 24 COL 80 ON EXCEPTION
-           IF ENTER-PRESSED
-               GO TO BUCLE
-           ELSE
-               GO TO BUCLE
-           END-IF. 
 
        PSYS-ERR3.
            CLOSE F-PROGRAMADAS.
