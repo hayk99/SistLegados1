@@ -277,6 +277,7 @@
        PMENUA1.
            ACCEPT CHOICE LINE 24 COL 80 ON EXCEPTION
                IF ESC-PRESSED
+                   MOVE 1 TO ADDDIAS
                    GO TO IMPRIMIR-CABECERA
                ELSE
                    GO TO PMENUA1.
