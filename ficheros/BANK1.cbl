@@ -277,6 +277,8 @@
        PMENUA1.
            ACCEPT CHOICE LINE 24 COL 80 ON EXCEPTION
                IF ESC-PRESSED
+      *    descomentar para  eliminar logica de anyadir un dia
+      *    cada vez que se vuelve al cajero inicial
                    MOVE 1 TO ADDDIAS
                    GO TO IMPRIMIR-CABECERA
                ELSE
