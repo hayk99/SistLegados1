@@ -451,16 +451,16 @@
            CLOSE F-MOVIMIENTOS.
 
       * Cosicas nuevas
-           IF MENSUALMENTE <> 00
-            DISPLAY BLANK-SCREEN.
-            DISPLAY "La transferencia se ha realizara mensualmente" 
-                LINE 12 COL 30
-            DISPLAY MENSUALMENTE LINE 12 COL 73
+           IF MENSUALMENTE <> 0
+            DISPLAY BLANK-SCREEN
+            DISPLAY "La transferencia se ha realizara mensualmente " 
+                LINE 12 COL 20
+            DISPLAY MENSUALMENTE LINE 12 COL 60
             ACCEPT PRESSED-KEY LINE 24 COL 80 ON EXCEPTION
-            IF ESC-PRESSED THEN
-               EXIT PROGRAM
-            ELSE
+            IF ENTER-PRESSED THEN
                GO TO OPEN-PROGRAMADAS
+            ELSE
+               EXIT PROGRAM
             END-IF.
               
 
@@ -575,7 +575,7 @@
 
        ESCRITURA-PROGRAMADAS2.
       *Transferencia a repetir mensualmente
-           IF MENSUALMENTE <> 00
+           IF MENSUALMENTE <> 0
       *Se programa mensualmente usando el dia actual
             IF FECHA-ACTUAL > FECHA-INDICADA THEN
                 MOVE DIA TO DIA1-USUARIO
@@ -585,6 +585,25 @@
 
            PERFORM ESCRITURA-PROGRAMADAS-M WITH TEST 
             BEFORE UNTIL MENSUALMENTE = 0 
+
+            DISPLAY LAST-PROG-NUM LINE 10 COL 10
+            DISPLAY TNUM LINE 15 COL 10 
+            DISPLAY CUENTA-DESTINO LINE 16 COL 10
+            DISPLAY ANO1-USUARIO LINE 17 COL 10
+            DISPLAY MES1-USUARIO LINE 18 COL 10
+            DISPLAY DIA1-USUARIO LINE 19 COL 10     
+            DISPLAY EURENT-USUARIO LINE 20 COL 10
+            DISPLAY EURDEC-USUARIO LINE 21 COL 10  
+            DISPLAY MSJ-DST LINE 22 COL 10
+
+            ACCEPT PRESSED-KEY LINE 24 COL 80 ON EXCEPTION
+            IF ENTER-PRESSED THEN
+               CLOSE F-PROGRAMADAS
+               GO TO P-PROG-EXITO
+            ELSE
+               EXIT PROGRAM
+            END-IF.
+
 
            ELSE
       * Transferencia no mensual     
@@ -625,16 +644,7 @@
                ADD 1 TO MES1-USUARIO
             END-IF
 
-            DISPLAY LAST-PROG-NUM LINE 10 COL 10. 
-            DISPLAY TNUM LINE 15 COL 10. 
-            DISPLAY CUENTA-DESTINO LINE 16 COL 10.
-            DISPLAY ANO1-USUARIO LINE 17 COL 10. 
-            DISPLAY MES1-USUARIO LINE 18 COL 10. 
-            DISPLAY DIA1-USUARIO LINE 19 COL 10.      
-            DISPLAY EURENT-USUARIO LINE 20 COL 10.
-            DISPLAY EURDEC-USUARIO LINE 21 COL 10.     
-            DISPLAY MSJ-DST LINE 22 COL 10.  
-
+        
             MOVE LAST-PROG-NUM  TO PROG-NUM.
             MOVE TNUM           TO PROG-TARJETA-O.
             MOVE CUENTA-DESTINO TO PROG-TARJETA-D.
