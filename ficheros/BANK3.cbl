@@ -263,8 +263,10 @@
            DISPLAY "Cantidad entre " LINE 15 COL 15.
            DISPLAY "       ,  EUR y          ,  EUR" LINE 15 COL 31.
 
-           DISPLAY "Enter - Aceptar" LINE 24 COL 1.
-           DISPLAY "ESC - Cancelar" LINE 24 COL 65.
+           DISPLAY "Enter - Aceptar" LINE 24 COL 3
+            WITH FOREGROUND-COLOR IS YELLOW.
+           DISPLAY "ESC - Cancelar" LINE 24 COL 65
+            WITH FOREGROUND-COLOR IS YELLOW.
 
            ACCEPT FILTRO-MOVIMIENTOS ON EXCEPTION
                IF ESC-PRESSED
@@ -308,7 +310,8 @@
            DISPLAY "SALDO" LINE 7 COL 71.
 
            DISPLAY "Re. pag - Esp. anteriores" LINE 24 COL 2.
-           DISPLAY "ESC - Salir" LINE 24 COL 33.
+           DISPLAY "ESC - Salir" LINE 24 COL 33
+            WITH FOREGROUND-COLOR IS YELLOW.
            DISPLAY "Av. pag - Esp. posteriores"  LINE 24 COL 54.
 
            MOVE 0 TO MOV-EN-PANTALLA.
@@ -468,7 +471,8 @@
            DISPLAY "Vuelva mas tarde" LINE 11 COL 32
                WITH FOREGROUND-COLOR IS BLACK
                     BACKGROUND-COLOR IS RED.
-           DISPLAY "Enter - Aceptar" LINE 24 COL 33.
+           DISPLAY "Enter - Aceptar" LINE 24 COL 33
+            WITH FOREGROUND-COLOR IS YELLOW.
 
        EXIT-ENTER.
            ACCEPT PRESSED-KEY LINE 24 COL 80 

@@ -105,6 +105,7 @@
            INITIALIZE PIN-ANTIGUO.
            INITIALIZE PIN-INTRODUCIDO.
            INITIALIZE PIN-INTRODUCIDO2.
+           MOVE TNUM TO TNUMF.
            
            DISPLAY "Introduce el nuevo pin:" LINE 10 COL 15.
            DISPLAY "Vuelve a introducir el nuevo pin:" 
@@ -117,8 +118,9 @@
 
            OPEN I-O TARJETAS.
            IF FST NOT = 00
-               GO TO PSYS-ERR.
-           READ TARJETAS INVALID KEY GO TO PSYS-ERR.
+               GO TO PSYS-ERR2.
+
+           READ TARJETAS INVALID KEY GO TO PSYS-ERR2.
 
            IF PIN-INTRODUCIDO <> PIN-INTRODUCIDO2 
                 GO TO PSYS-ERR
@@ -126,29 +128,36 @@
                 GO TO CAMBIO-PIN.
 
 
-
-
-
-
-
-        PSYS-ERR.
+       PSYS-ERR.
             PERFORM IMPRIMIR-CABECERA THRU IMPRIMIR-CABECERA.
-            DISPLAY "Ha ocurrido un error..." LINE 9 COL 25
-                WITH FOREGROUND-COLOR IS BLACK
-                     BACKGROUND-COLOR IS RED.
-            DISPLAY "Los pins introducidos son distintos" LINE 11 COL 32
-                WITH FOREGROUND-COLOR IS BLACK
-                     BACKGROUND-COLOR IS RED.
+            DISPLAY "Error, los pines introducidos son distintos" 
+            LINE 11 COL 20 WITH FOREGROUND-COLOR IS BLACK
+                BACKGROUND-COLOR IS RED.
             DISPLAY "Enter - Aceptar" LINE 24 COL 33.
+           GO TO EXIT-ENTER.
 
-        CAMBIO-PIN.
+       CAMBIO-PIN.
             PERFORM IMPRIMIR-CABECERA THRU IMPRIMIR-CABECERA.
             MOVE TNUM TO TNUMF.
             MOVE PIN-INTRODUCIDO TO TPINF.
             REWRITE TAJETAREG INVALID KEY GO TO PSYS-ERR.
-            DISPLAY "Se ha cambiado el pin." LINE 9 COL 25.
+            DISPLAY "Se ha cambiado el pin correctamente." 
+                LINE 9 COL 20.
+            DISPLAY "Enter - Aceptar" LINE 24 COL 33
+                WITH FOREGROUND-COLOR IS YELLOW.
+           GO TO EXIT-ENTER.
+
+       PSYS-ERR2.
+            PERFORM IMPRIMIR-CABECERA THRU IMPRIMIR-CABECERA.
+            DISPLAY "Ha ocurrido un error..." LINE 9 COL 25
+                WITH FOREGROUND-COLOR IS BLACK
+                     BACKGROUND-COLOR IS RED.
+            
+            DISPLAY "Enter - Aceptar" LINE 24 COL 33.
+           GO TO EXIT-ENTER.
 
        EXIT-ENTER.
+           CLOSE TARJETAS.
            ACCEPT PRESSED-KEY LINE 24 COL 80 
            IF ENTER-PRESSED
                EXIT PROGRAM

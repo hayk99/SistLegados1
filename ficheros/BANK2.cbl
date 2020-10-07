@@ -145,7 +145,8 @@
            DISPLAY HAY-SALDO-DISPLAY.
 
            CLOSE F-MOVIMIENTOS.
-           DISPLAY "Enter - Aceptar" LINE 24 COL 33.
+           DISPLAY "Enter - Aceptar" LINE 24 COL 33
+            WITH FOREGROUND-COLOR IS YELLOW.
            GO TO EXIT-ENTER.
 
        NO-MOVIMIENTOS.
@@ -154,7 +155,8 @@
            DISPLAY "00" LINE 12 COL 36.
            DISPLAY "EUR" LINE 12 COL 39.
 
-           DISPLAY "Enter - Aceptar" LINE 24 COL 33.
+           DISPLAY "Enter - Aceptar" LINE 24 COL 33
+            WITH FOREGROUND-COLOR IS YELLOW.
            GO TO EXIT-ENTER.
 
        PSYS-ERR.
@@ -168,7 +170,8 @@
            DISPLAY "Vuelva mas tarde" LINE 11 COL 32
                WITH FOREGROUND-COLOR IS BLACK
                     BACKGROUND-COLOR IS RED.
-           DISPLAY "Enter - Aceptar" LINE 24 COL 33.
+           DISPLAY "Enter - Aceptar" LINE 24 COL 33
+            WITH FOREGROUND-COLOR IS YELLOW.
 
        EXIT-ENTER.
            ACCEPT PRESSED-KEY LINE 24 COL 80 

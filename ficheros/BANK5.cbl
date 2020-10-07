@@ -223,8 +223,11 @@
        PANTALLA-INGRESO SECTION.
            INITIALIZE EURENT-USUARIO.
            INITIALIZE EURDEC-USUARIO.
+           INITIALIZE BILL10.
+           INITIALIZE BILL20.
+           INITIALIZE BILL50.
 
-           DISPLAY "ESC - Finalizar ingreso efectivo" LINE 24 COL 33.
+           DISPLAY "ESC - Finalizar ingreso efectivo" LINE 24 COL 24.
            DISPLAY "Ingresar efectivo" LINE 8 COL 30.
            DISPLAY "Saldo Actual: " LINE 10 COL 19.
 
@@ -310,7 +313,8 @@
            DISPLAY SALDO-DISPLAY-FINAL.
 
 
-           DISPLAY "Enter - Aceptar" LINE 24 COL 33.
+           DISPLAY "Enter - Aceptar" LINE 24 COL 33
+            WITH FOREGROUND-COLOR IS YELLOW.
 
 
            GO TO EXIT-ENTER.
@@ -326,7 +330,8 @@
            DISPLAY "Vuelva mas tarde" LINE 11 COL 32
                WITH FOREGROUND-COLOR IS BLACK
                     BACKGROUND-COLOR IS RED.
-           DISPLAY "Enter - Aceptar" LINE 24 COL 33.
+           DISPLAY "Enter - Aceptar" LINE 24 COL 33
+            WITH FOREGROUND-COLOR IS YELLOW.
 
        EXIT-ENTER.
            ACCEPT PRESSED-KEY LINE 24 COL 80 

@@ -213,8 +213,10 @@
            INITIALIZE EURENT-USUARIO.
            INITIALIZE EURDEC-USUARIO.
 
-           DISPLAY "Enter - Aceptar" LINE 24 COL 1.
-           DISPLAY "ESC - Cancelar" LINE 24 COL 66.
+           DISPLAY "Enter - Aceptar" LINE 24 COL 3
+            WITH FOREGROUND-COLOR IS YELLOW.
+           DISPLAY "ESC - Cancelar" LINE 24 COL 66
+            WITH FOREGROUND-COLOR IS YELLOW.
 
            DISPLAY "Retirar efectivo" LINE 8 COL 30.
            DISPLAY "Saldo Actual: " LINE 10 COL 19.
@@ -236,7 +238,8 @@
                                      + EURDEC-USUARIO.
 
            IF CENT-IMPOR-USER > CENT-SALDO-USER THEN
-               DISPLAY "Indique una cantidad menor!!" LINE 15 COL 19
+               DISPLAY "Por favor indique una cantidad menor" 
+                LINE 15 COL 19
                    WITH BACKGROUND-COLOR RED
                GO TO PANTALLA-RETIRADA
            END-IF.
@@ -284,12 +287,13 @@
        FINALIZACION SECTION.
            PERFORM IMPRIMIR-CABECERA THRU IMPRIMIR-CABECERA.
            DISPLAY "Retirar efectivo" LINE 8 COL 30.
-           DISPLAY "Por favor, retire los billetes" LINE 10 COL 19.
-           DISPLAY "El saldo resultante es de:" LINE 11 COL 17.
+           DISPLAY "Por favor, retire los billetes" LINE 10 COL 23.
+           DISPLAY "El saldo resultante es de:" LINE 11 COL 20.
 
            DISPLAY SALDO-DISPLAY-FINAL.
 
-           DISPLAY "Enter - Aceptar" LINE 24 COL 33.
+           DISPLAY "Enter - Aceptar" LINE 24 COL 33
+            WITH FOREGROUND-COLOR IS YELLOW.
 
            GO TO EXIT-ENTER.
 

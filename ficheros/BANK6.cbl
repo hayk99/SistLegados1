@@ -227,8 +227,10 @@
            DISPLAY "Ordenar Transferencia" LINE 8 COL 30.
            DISPLAY "Saldo Actual:" LINE 10 COL 19.
 
-           DISPLAY "Enter - Confirmar" LINE 24 COL 2.
-           DISPLAY "ESC - Cancelar" LINE 24 COL 66.
+           DISPLAY "Enter - Confirmar" LINE 24 COL 2
+            WITH FOREGROUND-COLOR IS YELLOW.
+           DISPLAY "ESC - Cancelar" LINE 24 COL 66
+            WITH FOREGROUND-COLOR IS YELLOW.
 
            IF LAST-USER-ORD-MOV-NUM = 0 THEN
                GO TO NO-MOVIMIENTOS
@@ -466,7 +468,8 @@
            DISPLAY "Ordenar transferencia" LINE 8 COL 30.
            DISPLAY "Transferencia realizada correctamente!"
                LINE 11 COL 19.
-           DISPLAY "Enter - Aceptar" LINE 25 COL 33.
+           DISPLAY "Enter - Aceptar" LINE 25 COL 33
+            WITH FOREGROUND-COLOR IS YELLOW.
            GO TO EXIT-ENTER.
 
        P-PROG-EXITO.
@@ -493,7 +496,8 @@
            DISPLAY "Vuelva mas tarde" LINE 11 COL 32
                WITH FOREGROUND-COLOR IS BLACK
                     BACKGROUND-COLOR IS RED.
-           DISPLAY "Enter - Aceptar" LINE 24 COL 33.
+           DISPLAY "Enter - Aceptar" LINE 24 COL 33
+            WITH FOREGROUND-COLOR IS YELLOW.
 
            GO TO EXIT-ENTER.
 
@@ -509,7 +513,8 @@
            DISPLAY "Vuelva mas tarde" LINE 11 COL 32
                WITH FOREGROUND-COLOR IS BLACK
                     BACKGROUND-COLOR IS RED.
-           DISPLAY "Enter - Aceptar" LINE 24 COL 33.
+           DISPLAY "Enter - Aceptar" LINE 24 COL 33
+            WITH FOREGROUND-COLOR IS YELLOW.
            DISPLAY FSP LINE 12 COL 40
                WITH FOREGROUND-COLOR IS BLACK
                     BACKGROUND-COLOR IS WHITE.
@@ -529,7 +534,8 @@
            DISPLAY "Vuelva mas tarde" LINE 11 COL 32
                WITH FOREGROUND-COLOR IS BLACK
                     BACKGROUND-COLOR IS RED.
-           DISPLAY "Enter - Aceptar" LINE 24 COL 33.
+           DISPLAY "Enter - Aceptar" LINE 24 COL 33
+            WITH FOREGROUND-COLOR IS YELLOW.
            DISPLAY FSP LINE 12 COL 40
                WITH FOREGROUND-COLOR IS BLACK
                     BACKGROUND-COLOR IS WHITE.

@@ -153,7 +153,6 @@
 
        77 CENT-IMPORTE-TRAS        PIC  S9(9).
        77 SALDO-ORIGEN             PIC  S9(9).
-       77 ADDDIAS                  PIC   9(1).
        77 SALDO-DESTINO            PIC  S9(9).
 
 
@@ -172,9 +171,7 @@
 
 
        PROCEDURE DIVISION.
-       CACA.
-           MOVE 2 TO ADDDIAS.
-
+       
        IMPRIMIR-CABECERA.
 
            SET ENVIRONMENT 'COB_SCREEN_EXCEPTIONS' TO 'Y'
@@ -202,7 +199,6 @@
 
        P1.
            MOVE CAMPOS-FECHA TO CAMPOS-FECHA-ANTIGUO.
-           ADD ADDDIAS TO DIA.
            DISPLAY "Bienvenido a UnizarBank" LINE 8 COL 28
                WITH FOREGROUND-COLOR IS CYAN.
            DISPLAY "Enter - Aceptar" LINE 24 COL 33
@@ -217,8 +213,7 @@
                                + DIA-ANTIGUO.
            IF (FECHA-ANTIGUA < FECHA-ACTUAL)
               GO TO REALIZAR-FUTURAS.
-      *    ejecutar transacciones  
-      *     PERFORM .
+      
 
            ACCEPT CHOICE LINE 24 COL 80 ON EXCEPTION
            IF ENTER-PRESSED
@@ -265,6 +260,7 @@
        PMENU.
            CLOSE TARJETAS.
            CLOSE INTENTOS.
+           CLOSE F-PROGRAMADAS.
 
            PERFORM IMPRIMIR-CABECERA THRU IMPRIMIR-CABECERA.
            DISPLAY "1 - Consultar saldo" LINE 8 COL 15.
@@ -281,9 +277,6 @@
        PMENUA1.
            ACCEPT CHOICE LINE 24 COL 80 ON EXCEPTION
                IF ESC-PRESSED
-      *    descomentar para  eliminar logica de anyadir un dia
-      *    cada vez que se vuelve al cajero inicial
-                   MOVE 1 TO ADDDIAS
                    GO TO IMPRIMIR-CABECERA
                ELSE
                    GO TO PMENUA1.
@@ -340,10 +333,6 @@
                     BACKGROUND-COLOR IS RED.
            DISPLAY "Enter - Aceptar" LINE 24 COL 33
                WITH FOREGROUND-COLOR IS YELLOW.
-           DISPLAY "FICHERO MOV" LINE 13 COL 33.
-           DISPLAY FSM LINE 13 COL 50.
-           DISPLAY "FICHERO PROG" LINE 14 COL 33.
-           DISPLAY FSA LINE 14 COL 50.
            GO TO PINT-ERR-ENTER.
 
        PINT-ERR.
@@ -393,8 +382,10 @@
                WITH FOREGROUND-COLOR IS BLACK
                     BACKGROUND-COLOR IS RED.
 
-           DISPLAY "Enter - Aceptar" LINE 24 COL 1.
-           DISPLAY "ESC - Cancelar" LINE 24 COL 65.
+           DISPLAY "Enter - Aceptar" LINE 24 COL 1
+            WITH FOREGROUND-COLOR IS YELLOW.
+           DISPLAY "ESC - Cancelar" LINE 24 COL 65
+            WITH FOREGROUND-COLOR IS YELLOW.
 
        PPIN-ERR-ENTER.
            ACCEPT CHOICE LINE 24 COL 80 ON EXCEPTION
@@ -412,7 +403,6 @@
            REWRITE INTENTOSREG INVALID KEY GO TO PSYS-ERR.
 
        REALIZAR-FUTURAS.
-           MOVE 0 TO ADDDIAS.
            INITIALIZE F-ACTUAL.
            INITIALIZE F-PROG.
            INITIALIZE F-ANTIGUO.
