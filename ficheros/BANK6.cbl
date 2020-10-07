@@ -398,7 +398,8 @@
                        DIA1-USUARIO)
            IF FECHA-ACTUAL < FECHA-INDICADA THEN                
                GO TO OPEN-PROGRAMADAS.
-      
+
+      *Caso en el que la transferencia es en el momento      
            MOVE LAST-MOV-NUM   TO MOV-NUM.
            MOVE TNUM           TO MOV-TARJETA.
            MOVE ANO1-USUARIO   TO MOV-ANO.
@@ -447,8 +448,22 @@
                TO MOV-SALDOPOS-DEC.
 
            WRITE MOVIMIENTO-REG INVALID KEY GO TO PSYS-ERR.
-
            CLOSE F-MOVIMIENTOS.
+
+      * Cosicas nuevas
+           IF MENSUALMENTE <> 00
+            DISPLAY BLANK-SCREEN.
+            DISPLAY "La transferencia se ha realizara mensualmente" 
+                LINE 12 COL 30
+            DISPLAY MENSUALMENTE LINE 12 COL 73
+            ACCEPT PRESSED-KEY LINE 24 COL 80 ON EXCEPTION
+            IF ESC-PRESSED THEN
+               EXIT PROGRAM
+            ELSE
+               GO TO OPEN-PROGRAMADAS
+            END-IF.
+              
+
 
        P-EXITO.
            PERFORM IMPRIMIR-CABECERA THRU IMPRIMIR-CABECERA.
@@ -559,28 +574,78 @@
            GO TO ESCRITURA-PROGRAMADAS.
 
        ESCRITURA-PROGRAMADAS2.
-           ADD 1 TO LAST-PROG-NUM
-           DISPLAY LAST-PROG-NUM LINE 10 COL 10. 
-           DISPLAY TNUM LINE 15 COL 10. 
-           DISPLAY CUENTA-DESTINO LINE 16 COL 10. 
-           DISPLAY MES1-USUARIO LINE 17 COL 10. 
-           DISPLAY DIA1-USUARIO LINE 18 COL 10.      
-           DISPLAY EURENT-USUARIO LINE 19 COL 10.
-           DISPLAY EURDEC-USUARIO LINE 20 COL 10.     
-           DISPLAY MSJ-DST LINE 21 COL 10.  
+      *Transferencia a repetir mensualmente
+           IF MENSUALMENTE <> 00
+      *Se programa mensualmente usando el dia actual
+            IF FECHA-ACTUAL > FECHA-INDICADA THEN
+                MOVE DIA TO DIA1-USUARIO
+                MOVE MES TO MES1-USUARIO
+                MOVE ANO TO ANO1-USUARIO
+            END-IF
 
-           MOVE LAST-PROG-NUM  TO PROG-NUM.
-           MOVE TNUM           TO PROG-TARJETA-O.
-           MOVE CUENTA-DESTINO TO PROG-TARJETA-D.
-           MOVE ANO1-USUARIO   TO PROG-ANO.
-           MOVE MES1-USUARIO   TO PROG-MES.
-           MOVE DIA1-USUARIO   TO PROG-DIA.
-           MOVE EURENT-USUARIO TO PROG-IMPORTE-ENT.
-           MOVE EURDEC-USUARIO TO PROG-IMPORTE-DEC.
-           MOVE "PROGRAMADO"   TO PROG-CONCEPTO.
+           PERFORM ESCRITURA-PROGRAMADAS-M WITH TEST 
+            BEFORE UNTIL MENSUALMENTE = 0 
 
-           WRITE PROGRAMADAS-REG INVALID KEY GO TO PSYS-ERR.
+           ELSE
+      * Transferencia no mensual     
+            ADD 1 TO LAST-PROG-NUM
+      *      DISPLAY LAST-PROG-NUM LINE 10 COL 10. 
+      *      DISPLAY TNUM LINE 15 COL 10. 
+      *      DISPLAY CUENTA-DESTINO LINE 16 COL 10. 
+      *      DISPLAY MES1-USUARIO LINE 17 COL 10. 
+      *      DISPLAY DIA1-USUARIO LINE 18 COL 10.      
+      *      DISPLAY EURENT-USUARIO LINE 19 COL 10.
+      *      DISPLAY EURDEC-USUARIO LINE 20 COL 10.     
+      *      DISPLAY MSJ-DST LINE 21 COL 10.  
+
+            MOVE LAST-PROG-NUM  TO PROG-NUM
+            MOVE TNUM           TO PROG-TARJETA-O
+            MOVE CUENTA-DESTINO TO PROG-TARJETA-D
+            MOVE ANO1-USUARIO   TO PROG-ANO
+            MOVE MES1-USUARIO   TO PROG-MES
+            MOVE DIA1-USUARIO   TO PROG-DIA
+            MOVE EURENT-USUARIO TO PROG-IMPORTE-ENT
+            MOVE EURDEC-USUARIO TO PROG-IMPORTE-DEC
+            MOVE "PROGRAMADO"   TO PROG-CONCEPTO
+
+            WRITE PROGRAMADAS-REG INVALID KEY GO TO PSYS-ERR
+           END-IF.
+
            CLOSE F-PROGRAMADAS.
            GO TO P-PROG-EXITO.
+
+       ESCRITURA-PROGRAMADAS-M.
+            ADD 1 TO LAST-PROG-NUM.
+            SUBTRACT 1 FROM MENSUALMENTE.
+
+            IF MES1-USUARIO = 12
+               MOVE 1 TO MES1-USUARIO
+               ADD 1 TO ANO1-USUARIO
+            ELSE
+               ADD 1 TO MES1-USUARIO
+            END-IF
+
+            DISPLAY LAST-PROG-NUM LINE 10 COL 10. 
+            DISPLAY TNUM LINE 15 COL 10. 
+            DISPLAY CUENTA-DESTINO LINE 16 COL 10.
+            DISPLAY ANO1-USUARIO LINE 17 COL 10. 
+            DISPLAY MES1-USUARIO LINE 18 COL 10. 
+            DISPLAY DIA1-USUARIO LINE 19 COL 10.      
+            DISPLAY EURENT-USUARIO LINE 20 COL 10.
+            DISPLAY EURDEC-USUARIO LINE 21 COL 10.     
+            DISPLAY MSJ-DST LINE 22 COL 10.  
+
+            MOVE LAST-PROG-NUM  TO PROG-NUM.
+            MOVE TNUM           TO PROG-TARJETA-O.
+            MOVE CUENTA-DESTINO TO PROG-TARJETA-D.
+            MOVE ANO1-USUARIO   TO PROG-ANO.
+            MOVE MES1-USUARIO   TO PROG-MES.
+            MOVE DIA1-USUARIO   TO PROG-DIA.
+            MOVE EURENT-USUARIO TO PROG-IMPORTE-ENT.
+            MOVE EURDEC-USUARIO TO PROG-IMPORTE-DEC.
+            MOVE "PROGRAMADO MENSUAL"   TO PROG-CONCEPTO.
+
+            WRITE PROGRAMADAS-REG INVALID KEY GO TO PSYS-ERR.
+            
 
 

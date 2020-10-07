@@ -123,12 +123,12 @@
                LINE 13 COL 56 PIC 9(4) USING ANO2-USUARIO.
            05 EUR-ENT-MIN BLANK ZERO AUTO UNDERLINE
                SIGN IS LEADING SEPARATE
-               LINE 15 COL 29 PIC -9(7) USING EURENT1-USUARIO.
+               LINE 15 COL 30 PIC -9(7) USING EURENT1-USUARIO.
            05 EUR-DEC-MIN BLANK ZERO AUTO UNDERLINE
                LINE 15 COL 39 PIC 9(2) USING EURDEC1-USUARIO.
            05 EUR-ENT-MAX BLANK ZERO AUTO UNDERLINE
                SIGN IS LEADING SEPARATE
-               LINE 15 COL 47 PIC -9(7) USING EURENT2-USUARIO.
+               LINE 15 COL 48 PIC -9(7) USING EURENT2-USUARIO.
            05 EUR-DEC-MAX BLANK ZERO UNDERLINE
                LINE 15 COL 57 PIC 9(2) USING EURDEC2-USUARIO.
 
@@ -258,10 +258,10 @@
            DISPLAY "Alternativamente, indique un intervalo" LINE 9 COL 8.
            DISPLAY "de fechas o cantidades" LINE 9 COL 47.
 
-           DISPLAY "Entre las fechas / / y / / " LINE 13 COL 20.
-           DISPLAY "Cantidad entre         .   EUR y         .   EUR" 
-              LINE 15 COL 15
-      *>     DISPLAY "Cantidad entre EUR y EUR" LINE 15 COL 15.
+           DISPLAY "Entre las fechas   /  /" LINE 13 COL 20.
+           DISPLAY " y   /  /" LINE 13 COL 47.
+           DISPLAY "Cantidad entre " LINE 15 COL 15.
+           DISPLAY "       ,  EUR y          ,  EUR" LINE 15 COL 31.
 
            DISPLAY "Enter - Aceptar" LINE 24 COL 1.
            DISPLAY "ESC - Cancelar" LINE 24 COL 65.

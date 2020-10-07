@@ -114,7 +114,7 @@
       *>     05 FILLER BLANK WHEN ZERO AUTO UNDERLINE
            05 FILLER BLANK ZERO AUTO UNDERLINE
                SIGN IS LEADING SEPARATE
-               LINE 16 COL 53 PIC -9(7) USING EURENT-USUARIO.
+               LINE 16 COL 54 PIC -9(7) USING EURENT-USUARIO.
            05 FILLER BLANK ZERO UNDERLINE
                LINE 16 COL 63 PIC 9(2) USING EURDEC-USUARIO.
 
@@ -197,7 +197,7 @@
            DISPLAY "Indica la cuenta destino" LINE 12 COL 19.
            DISPLAY "y nombre del titular" LINE 14 COL 19.
            DISPLAY "Indique la cantidad a transferir" LINE 16 COL 19.
-           DISPLAY "," LINE 16 COL 61.
+           DISPLAY "," LINE 16 COL 62.
            DISPLAY "EUR" LINE 16 COL 66.
 
            COMPUTE CENT-SALDO-ORD-USER = (MOV-SALDOPOS-ENT * 100)
