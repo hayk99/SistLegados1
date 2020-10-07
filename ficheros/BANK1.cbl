@@ -203,8 +203,10 @@
        P1.
            MOVE CAMPOS-FECHA TO CAMPOS-FECHA-ANTIGUO.
            ADD ADDDIAS TO DIA.
-           DISPLAY "Bienvenido a UnizarBank" LINE 8 COL 28.
-           DISPLAY "Enter - Aceptar" LINE 24 COL 33.
+           DISPLAY "Bienvenido a UnizarBank" LINE 8 COL 28
+               WITH FOREGROUND-COLOR IS CYAN.
+           DISPLAY "Enter - Aceptar" LINE 24 COL 33
+               WITH FOREGROUND-COLOR IS YELLOW.
 
        P1-ENTER.
            COMPUTE FECHA-ACTUAL = (ANO * 10000)
@@ -227,7 +229,8 @@
 
        P2.
            PERFORM IMPRIMIR-CABECERA THRU IMPRIMIR-CABECERA.  
-           DISPLAY "ESC - Salir" LINE 24 COL 33.
+           DISPLAY "ESC - Salir" LINE 24 COL 33
+               WITH FOREGROUND-COLOR IS YELLOW.
            INITIALIZE TNUM.
            INITIALIZE PIN-INTRODUCIDO.
            INITIALIZE TPIN.
@@ -272,7 +275,8 @@
            DISPLAY "6 - Listado de transferencias" LINE 13 COL 15.
            DISPLAY "7 - Comprar entradas de espectaculos" LINE 14 COL 15.
            DISPLAY "8 - Cambiar clave" LINE 15 COL 15.
-           DISPLAY "ESC - Salir" LINE 24 COL 34.
+           DISPLAY "ESC - Salir" LINE 24 COL 34
+               WITH FOREGROUND-COLOR IS YELLOW.
 
        PMENUA1.
            ACCEPT CHOICE LINE 24 COL 80 ON EXCEPTION
@@ -334,34 +338,13 @@
            DISPLAY "Vuelva mas tarde" LINE 11 COL 32
                WITH FOREGROUND-COLOR IS BLACK
                     BACKGROUND-COLOR IS RED.
-           DISPLAY "Enter - Aceptar" LINE 24 COL 33.
+           DISPLAY "Enter - Aceptar" LINE 24 COL 33
+               WITH FOREGROUND-COLOR IS YELLOW.
            DISPLAY "FICHERO MOV" LINE 13 COL 33.
            DISPLAY FSM LINE 13 COL 50.
            DISPLAY "FICHERO PROG" LINE 14 COL 33.
            DISPLAY FSA LINE 14 COL 50.
            GO TO PINT-ERR-ENTER.
-
-       PSYS-ERR2.
-      *     CLOSE F-PROGRAMADAS.
-           
-           
-           CLOSE TARJETAS.
-           CLOSE INTENTOS.
-
-           PERFORM IMPRIMIR-CABECERA THRU IMPRIMIR-CABECERA.
-           DISPLAY "Ha ocurrido un error interno2222222" LINE 9 COL 25
-               WITH FOREGROUND-COLOR IS BLACK
-                    BACKGROUND-COLOR IS RED.
-           DISPLAY "Vuelva mas tarde" LINE 11 COL 32
-               WITH FOREGROUND-COLOR IS BLACK
-                    BACKGROUND-COLOR IS RED.
-           DISPLAY "Enter - Aceptar" LINE 24 COL 33.
-           DISPLAY FSM LINE 7 COL 10
-               WITH FOREGROUND-COLOR IS BLACK
-                    BACKGROUND-COLOR IS RED.
-           CLOSE F-MOVIMIENTOS.
-           GO TO PINT-ERR-ENTER.
-
 
        PINT-ERR.
 
@@ -446,7 +429,7 @@
            CLOSE F-PROGRAMADAS.
            OPEN I-O F-PROGRAMADAS.
            IF FSA <> 00
-               GO TO PSYS-ERR2.
+               GO TO PSYS-ERR.
 
        REALIZAR-FUTURAS2.
            READ F-PROGRAMADAS NEXT RECORD AT END 
