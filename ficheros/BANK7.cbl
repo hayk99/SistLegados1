@@ -309,7 +309,8 @@
            DISPLAY "SALDO" LINE 7 COL 71.
 
            DISPLAY "Re. pag - Esp. anteriores" LINE 24 COL 2.
-           DISPLAY "ESC - Salir" LINE 24 COL 33.
+           DISPLAY "ESC - Salir" LINE 24 COL 33
+            WITH FOREGROUND-COLOR IS YELLOW.
            DISPLAY "Av. pag - Esp. posteriores"  LINE 24 COL 54.
 
            MOVE 0 TO MOV-EN-PANTALLA.

@@ -467,7 +467,7 @@
 
            DISPLAY "Ordenar transferencia" LINE 8 COL 30.
            DISPLAY "Transferencia realizada correctamente!"
-               LINE 11 COL 19.
+               LINE 11 COL 24.
            DISPLAY "Enter - Aceptar" LINE 25 COL 33
             WITH FOREGROUND-COLOR IS YELLOW.
            GO TO EXIT-ENTER.

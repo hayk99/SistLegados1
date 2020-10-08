@@ -675,5 +675,5 @@
                                   + (MES * 100)
                                   + DIA.
 
-           IF FECHA-ACTUAL > FECHA-ESP-FILTRO
-               MOVE 0 TO ESP-VALIDO.
+      *    IF FECHA-ACTUAL > FECHA-ESP-FILTRO
+      *         MOVE 0 TO ESP-VALIDO.
